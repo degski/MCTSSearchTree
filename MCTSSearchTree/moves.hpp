@@ -45,10 +45,10 @@ extern splitmix64 rng;
 template<typename T, std::size_t S>
 class Moves {
 
-    typedef T MovesType [ S ]; // Type-deffing a C-array.
+    typedef T Array [ S ]; // Type-deffing a C-array.
 
     Int m_size = 0;
-    MovesType m_moves;
+    Array m_moves;
 
     public:
 
@@ -58,6 +58,7 @@ class Moves {
         m_size = 0;
     }
 
+    // Assignment is allowed! Yes, it's weird.
     [[ nodiscard ]] Int & size ( ) noexcept {
         return m_size;
     }
@@ -105,11 +106,10 @@ class Moves {
         return false;
     }
 
+    // Select a move, remove and return it.
     [[ nodiscard ]] value_type draw ( ) noexcept {
-        const Int i { ext::uniform_int_distribution_fast<Int> ( 0, m_size - 1 ) ( rng ) };
-        const value_type v = m_moves [ i ];
-        m_moves [ i ] = m_moves [ --m_size ];
-        return v;
+        --m_size;
+        return m_moves [ ext::uniform_int_distribution_fast<Int> ( 0, m_size ) ( rng ) ] = m_moves [ m_size ];
     }
 
     [[ maybe_unused ]] Moves & operator = ( const Moves & rhs_ ) noexcept {

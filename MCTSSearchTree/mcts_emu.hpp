@@ -41,25 +41,26 @@ extern splitmix64 rng;
 
 
 struct MoveType {
-
     std::uint8_t move;
 
-    MoveType ( ) {}
-    MoveType ( const std::uint8_t m_ ) : move ( m_ ) {}
-    MoveType ( std::uint8_t && m_ ) : move ( std::move ( m_ ) ) {}
+    explicit MoveType ( ) noexcept {
+    }
+    explicit MoveType ( const std::uint8_t m_ ) noexcept :
+        move { m_ } {
+    }
+    explicit MoveType ( std::uint8_t && m_ ) noexcept :
+        move { std::move ( m_ ) } {
+    }
 };
 
 using MovesType = Moves<MoveType, 256>;
 
 
 MovesType getMoves ( ) {
-
     MovesType moves;
-
+    moves.size ( ) = moves.capacity ( );
     std::iota<MoveType*, std::uint8_t> ( std::begin ( moves ), std::end ( moves ), 0 );
     std::shuffle ( std::begin ( moves ), std::end ( moves ), rng );
-    moves.size ( ) = moves.capacity ( );
-
     return moves;
 }
 
@@ -76,8 +77,8 @@ void addArc ( G & g_, N source_, N target_, const bool print = false ) {
 }
 
 template<typename G, typename N>
-bool hasMoves ( G & g_, N source_ ) {
-    return g_.data ( source_ ).size ( ) > 0;
+bool hasMoves ( G & g_, N source_ ) noexcept {
+    return g_.data ( source_ ).size ( );
 }
 
 template<typename G, typename N>
