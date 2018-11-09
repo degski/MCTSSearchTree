@@ -56,7 +56,7 @@ splitmix64 rng { 123u };
 using Int = std::int32_t;
 
 
-#define ARC_INVALID_VALUE ( INT_MIN )
+#define ARCID_INVALID_VALUE ( INT_MIN )
 
 struct ArcID {
 
@@ -65,7 +65,7 @@ struct ArcID {
     static const ArcID invalid;
 
     explicit ArcID ( ) noexcept :
-        value { ARC_INVALID_VALUE } {
+        value { ARCID_INVALID_VALUE } {
     }
     explicit ArcID ( Int && v_ ) noexcept :
         value { std::move ( v_ ) } {
@@ -95,10 +95,10 @@ struct ArcID {
     }
 };
 
-const ArcID ArcID::invalid { ARC_INVALID_VALUE };
+const ArcID ArcID::invalid { ARCID_INVALID_VALUE };
 
 
-#define NODE_INVALID_VALUE ( INT_MIN + 1 )
+#define NODEID_INVALID_VALUE ( INT_MIN + 1 )
 
 struct NodeID {
 
@@ -107,7 +107,7 @@ struct NodeID {
     static const NodeID invalid;
 
     explicit NodeID ( ) noexcept :
-        value { NODE_INVALID_VALUE } {
+        value { NODEID_INVALID_VALUE } {
     }
     explicit NodeID ( Int && v_ ) noexcept :
         value { std::move ( v_ ) } {
@@ -137,7 +137,7 @@ struct NodeID {
     }
 };
 
-const NodeID NodeID::invalid { NODE_INVALID_VALUE };
+const NodeID NodeID::invalid { NODEID_INVALID_VALUE };
 
 
 template<typename DataType>
