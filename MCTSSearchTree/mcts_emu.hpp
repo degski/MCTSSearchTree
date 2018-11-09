@@ -23,11 +23,11 @@
 
 #pragma once
 
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <cstdint>
-#include <ciso646>
-#include <cassert>
 
 #include <iostream>
 #include <numeric>

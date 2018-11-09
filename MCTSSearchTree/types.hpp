@@ -25,6 +25,8 @@
 
 using uindex_t = std::uint32_t;
 using index_t = std::int32_t;
+using Int = std::int32_t;
+
 
 #define BOOST_DISABLE_THREADS
 #include <boost/pool/pool_alloc.hpp>
