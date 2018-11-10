@@ -439,6 +439,17 @@ class SearchTree {
 
 int wmain ( ) {
 
+    std::wcout << getMoves ( );
+    std::wcout << getMoves ( );
+    std::wcout << getMoves ( );
+    std::wcout << getMoves ( );
+
+    return EXIT_SUCCESS;
+}
+
+
+int wmain6867867 ( ) {
+
     using Tree = SearchTree<MoveType, MovesType>;
 
     Tree g ( getMoves ( ) ); // Root Moves...

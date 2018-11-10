@@ -41,59 +41,59 @@ extern splitmix64 rng;
 
 
 struct MoveType {
-    std::uint8_t move;
+    std::uint8_t value;
 
-    explicit MoveType ( ) noexcept {
+    MoveType ( ) noexcept {
     }
-    explicit MoveType ( const std::uint8_t m_ ) noexcept :
-        move { m_ } {
+    MoveType ( const std::uint8_t m_ ) noexcept :
+        value { m_ } {
     }
-    explicit MoveType ( std::uint8_t && m_ ) noexcept :
-        move { std::move ( m_ ) } {
+    MoveType ( std::uint8_t && m_ ) noexcept :
+        value { std::move ( m_ ) } {
     }
 };
 
 using MovesType = Moves<MoveType, 256>;
 
 
-MovesType getMoves ( ) {
+[[ nodiscard ]] MovesType getMoves ( ) noexcept {
     MovesType moves;
     moves.size ( ) = moves.capacity ( );
-    std::iota<MoveType*, std::uint8_t> ( std::begin ( moves ), std::end ( moves ), 0 );
+    std::iota<MoveType*, std::uint8_t> ( std::begin ( moves ), std::end ( moves ), 0u );
     std::shuffle ( std::begin ( moves ), std::end ( moves ), rng );
     return moves;
 }
 
 template<typename G, typename N>
-N addNode ( G & g_, N source_, const bool print = false ) {
+[[ nodiscard ]] N addNode ( G & g_, N source_, const bool print = false ) noexcept {
     N target = g_.addNode ( getMoves ( ) );
-    g_.addArc ( source_, target, g_.data ( source_ ).draw ( ) );
+    const auto _ { g_.addArc ( source_, target, g_.data ( source_ ).take ( ) ) };
     return target;
 }
 
 template<typename G, typename N>
-void addArc ( G & g_, N source_, N target_, const bool print = false ) {
-    g_.addArc ( source_, target_, g_.data ( source_ ).draw ( ) );
+void addArc ( G & g_, N source_, N target_, const bool print = false ) noexcept {
+    const auto _ { g_.addArc ( source_, target_, g_.data ( source_ ).take ( ) ) };
 }
 
 template<typename G, typename N>
-bool hasMoves ( G & g_, N source_ ) noexcept {
+[[ nodiscard ]] bool hasMoves ( G & g_, N source_ ) noexcept {
     return g_.data ( source_ ).size ( );
 }
 
 template<typename G, typename N>
-N selectChild ( G & g_, N source_ ) {
+[[ nodiscard ]] N selectChild ( G & g_, N source_ ) noexcept {
     auto it = g_.cbeginOut ( source_ );
     std::advance ( it, std::uniform_int_distribution<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) );
     return it->target;
 }
 
 template<typename G, typename N>
-N selectChildVector ( G & g_, N source_ ) {
+[[ nodiscard ]] N selectChildVector ( G & g_, N source_ ) noexcept {
     return g_.outArcs ( source_ ) [ std::uniform_int_distribution<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) ]->target;
 }
 
 template<typename G, typename N>
-bool hasChild ( G& g_, N source_ ) {
+[[ nodiscard ]] bool hasChild ( G& g_, N source_ ) noexcept {
     return g_.hasOutArc ( source_ );
 }

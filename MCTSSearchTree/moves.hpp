@@ -107,9 +107,11 @@ class Moves {
     }
 
     // Select a move, remove and return it.
-    [[ nodiscard ]] value_type draw ( ) noexcept {
-        --m_size;
-        return m_moves [ ext::uniform_int_distribution_fast<Int> ( 0, m_size ) ( rng ) ] = m_moves [ m_size ];
+    [[ nodiscard ]] value_type take ( ) noexcept {
+        const Int i { ext::uniform_int_distribution_fast<Int> { 0, --m_size } ( rng ) };
+        const value_type v { m_moves [ i ] };
+        m_moves [ i ] = m_moves [ m_size ];
+        return v;
     }
 
     [[ maybe_unused ]] Moves & operator = ( const Moves & rhs_ ) noexcept {
@@ -135,31 +137,41 @@ class Moves {
         }
     }
 
-    void print ( ) const noexcept {
-        for ( Int i = 0; i < m_size; ++i ) {
-            // putchar ( ( int ) m_moves [ i ].m_loc + 48 ); putchar ( ' ' );
-            // putchar ( ( int ) m_moves [ i ] + 48 ); putchar ( ' ' );
-            std::cout << ( int ) m_moves [ i ] << ' ';
-        }
-        putchar ( '\n' );
+    [[ nodiscard ]] auto begin ( ) noexcept {
+        return std::begin ( m_moves );
     }
+    [[ nodiscard ]] auto begin ( ) const noexcept {
+        return std::begin ( m_moves );
+    }
+    [[ nodiscard ]] auto cbegin ( ) const noexcept {
+        return std::cbegin ( m_moves );
+    }
+    [[ nodiscard ]] auto end ( ) noexcept {
+        return begin ( ) + m_size;
+    }
+    [[ nodiscard ]] auto end ( ) const noexcept {
+        return begin ( ) + m_size;
+    }
+    [[ nodiscard ]] auto cend ( ) const noexcept {
+        return cbegin ( ) + m_size;
+    }
+
+    template<typename Stream, typename T, std::size_t S>
+    friend Stream & operator << ( Stream & out_, const Moves<T, S> & m_ ) noexcept {
+        for ( Int i = 0; i < m_.m_size; ++i ) {
+            out_ << ( int ) m_.m_moves [ i ].value << L' ';
+        }
+        out_ << L'\n';
+        return out_;
+    }
+
+    private:
+
+    friend class cereal::access;
 
     template < class Archive >
     void serialize ( Archive & ar_ ) noexcept {
         ar_ ( m_size );
         ar_ ( cereal::binary_data ( & m_moves, m_size * sizeof ( T ) ) );
-    }
-
-    [[ nodiscard ]] auto begin ( ) {
-        return std::begin ( m_moves );
-    }
-    [[ nodiscard ]] const auto cbegin ( ) const {
-        return std::cbegin ( m_moves );
-    }
-    [[ nodiscard ]] auto end ( ) {
-        return begin ( ) + m_size;
-    }
-    [[ nodiscard ]] const auto cend ( ) const {
-        return cbegin ( ) + m_size;
     }
 };
