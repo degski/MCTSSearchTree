@@ -156,8 +156,8 @@ class Moves {
         return cbegin ( ) + m_size;
     }
 
-    template<typename Stream, typename T, std::size_t S>
-    friend Stream & operator << ( Stream & out_, const Moves<T, S> & m_ ) noexcept {
+    template<typename Stream>
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Moves & m_ ) noexcept {
         for ( Int i = 0; i < m_.m_size; ++i ) {
             out_ << ( int ) m_.m_moves [ i ].value << L' ';
         }

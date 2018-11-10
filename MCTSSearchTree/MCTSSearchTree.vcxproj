@@ -209,7 +209,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="graph_link_path.hpp" />
+    <ClInclude Include="link_path.hpp" />
     <ClInclude Include="mcts_emu.hpp" />
     <ClInclude Include="moves.hpp" />
     <ClInclude Include="types.hpp" />

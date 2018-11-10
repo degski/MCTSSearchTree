@@ -34,6 +34,7 @@
 #include <random>
 
 #include "splitmix.hpp"
+#include "uniform_int_distribution_fast.hpp"
 #include "moves.hpp"
 
 
@@ -84,13 +85,13 @@ template<typename G, typename N>
 template<typename G, typename N>
 [[ nodiscard ]] N selectChild ( G & g_, N source_ ) noexcept {
     auto it = g_.cbeginOut ( source_ );
-    std::advance ( it, std::uniform_int_distribution<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) );
+    std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) );
     return it->target;
 }
 
 template<typename G, typename N>
 [[ nodiscard ]] N selectChildVector ( G & g_, N source_ ) noexcept {
-    return g_.outArcs ( source_ ) [ std::uniform_int_distribution<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) ]->target;
+    return g_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) ]->target;
 }
 
 template<typename G, typename N>
