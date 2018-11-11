@@ -48,6 +48,8 @@
 #include "splitmix.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
+#include "link.hpp"
+#include "path.hpp"
 
 
 splitmix64 rng { 123u };

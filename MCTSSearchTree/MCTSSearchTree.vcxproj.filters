@@ -29,7 +29,10 @@
     <ClInclude Include="types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="link_path.hpp">
+    <ClInclude Include="link.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="path.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
