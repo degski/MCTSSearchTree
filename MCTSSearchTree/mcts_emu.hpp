@@ -36,9 +36,10 @@
 #include "splitmix.hpp"
 #include "uniform_int_distribution_fast.hpp"
 #include "moves.hpp"
+#include "singleton.hpp"
 
 
-extern splitmix64 rng;
+extern Singleton<splitmix64> rng;
 
 
 struct MoveType {
@@ -61,7 +62,7 @@ using MovesType = Moves<MoveType, 256>;
     MovesType moves;
     moves.size ( ) = moves.capacity ( );
     std::iota<MoveType*, std::uint8_t> ( std::begin ( moves ), std::end ( moves ), 0u );
-    std::shuffle ( std::begin ( moves ), std::end ( moves ), rng );
+    std::shuffle ( std::begin ( moves ), std::end ( moves ), rng.instance ( ) );
     return moves;
 }
 
@@ -85,13 +86,13 @@ template<typename G, typename N>
 template<typename G, typename N>
 [[ nodiscard ]] N selectChild ( G & g_, N source_ ) noexcept {
     auto it = g_.cbeginOut ( source_ );
-    std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) );
+    std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
     return it->target;
 }
 
 template<typename G, typename N>
 [[ nodiscard ]] N selectChildVector ( G & g_, N source_ ) noexcept {
-    return g_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng ) ]->target;
+    return g_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, g_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
 }
 
 template<typename G, typename N>

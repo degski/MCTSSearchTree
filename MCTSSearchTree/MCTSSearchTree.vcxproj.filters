@@ -35,6 +35,9 @@
     <ClInclude Include="path.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE.md" />

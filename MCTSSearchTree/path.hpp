@@ -39,9 +39,6 @@
 #include "link.hpp"
 
 
-extern splitmix64 rng;
-
-
 template<typename Tree>
 class Path {
 

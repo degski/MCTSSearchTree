@@ -37,9 +37,10 @@
 #include "splitmix.hpp"
 #include "uniform_int_distribution_fast.hpp"
 #include "types.hpp"
+#include "singleton.hpp"
 
 
-extern splitmix64 rng;
+extern Singleton<splitmix64> rng;
 
 
 template<typename T, std::size_t S>
@@ -94,7 +95,7 @@ class Moves {
     }
 
     [[ nodiscard ]] value_type random ( ) const noexcept {
-        return m_moves [ ext::uniform_int_distribution_fast<std::ptrdiff_t> ( 0, m_size - 1 ) ( rng ) ];
+        return m_moves [ ext::uniform_int_distribution_fast<std::ptrdiff_t> ( 0, m_size - 1 ) ( rng.instance ( ) ) ];
     }
 
     [[ nodiscard ]] bool find ( const value_type m_ ) const noexcept {
@@ -108,7 +109,7 @@ class Moves {
 
     // Select a move, remove and return it.
     [[ nodiscard ]] value_type take ( ) noexcept {
-        const Int i { ext::uniform_int_distribution_fast<Int> { 0, --m_size } ( rng ) };
+        const Int i { ext::uniform_int_distribution_fast<Int> { 0, --m_size } ( rng.instance ( ) ) };
         const value_type v { m_moves [ i ] };
         m_moves [ i ] = m_moves [ m_size ];
         return v;

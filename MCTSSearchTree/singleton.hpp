@@ -23,17 +23,22 @@
 
 #pragma once
 
-
-using Int = std::int32_t;
-
-
-#include <pector/pector.h>
-#include <pector/malloc_allocator.h>
-#define BOOST_DISABLE_THREADS
-#include <boost/pool/pool_alloc.hpp>
+#include <utility>
 
 
-template<typename T>
-// using vector_container = pt::pector<T, pt::malloc_allocator<T, true, true>, uindex_t>;
-using vector_container = std::vector<T, boost::pool_allocator<T>>;
-// using vector_container = pt::pector<T, boost::pool_allocator<T>, uindex_t>;
+template<typename Type>
+struct Singleton {
+
+    Singleton ( ) = default;
+    Singleton ( const Singleton & ) = delete;
+    Singleton ( Singleton && ) = delete;
+    virtual ~Singleton ( ) = default;
+    Singleton & operator = ( const Singleton & ) = delete;
+    Singleton & operator = ( Singleton && ) = delete;
+
+    template<typename ... Args>
+    [[ maybe_unused ]] static Type & instance ( Args && ... args_ ) {
+        static Type object { std::forward<Args> ( args_ ) ... };
+        return object;
+    }
+};
