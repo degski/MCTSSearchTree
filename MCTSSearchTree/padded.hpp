@@ -31,20 +31,16 @@
 
 
 namespace detail {
-
 // Integer LogN.
 template<int Base, typename T, typename sfinae = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
 constexpr T iLog ( const T n_, const T p_ = T ( 0 ) ) noexcept {
     return n_ < Base ? p_ : iLog<Base, T, sfinae> ( n_ / Base, p_ + 1 );
 }
-
 // Integer Log2.
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
 constexpr T ilog2 ( const T n_ ) noexcept {
-
     return iLog<2, T> ( n_ );
 }
-
 template<typename T, typename = std::enable_if_t<std::conjunction_v<std::is_integral<T>, std::is_unsigned<T>>>>
 constexpr T next_power_2 ( const T n_ ) noexcept {
     return n_ > 2 ? T ( 1 ) << ( ilog2<T> ( n_ - 1 ) + 1 ) : n_;
@@ -52,6 +48,7 @@ constexpr T next_power_2 ( const T n_ ) noexcept {
 }
 
 
+// Padds T to the a size of a power of 2.
 template<typename T, std::size_t Size = detail::next_power_2 ( sizeof ( T ) ) - sizeof ( T )>
 struct Padded : public T { // Padded.
 

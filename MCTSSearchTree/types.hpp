@@ -34,7 +34,7 @@ using Int = std::int32_t;
 
 
 template<typename T>
-// using vector_container = pt::pector<T, pt::malloc_allocator<T, true, true>, uindex_t>;
+// using vector_container = pt::pector<T, pt::malloc_allocator<T, true, true>, Int>;
 // using vector_container = std::vector<T, boost::pool_allocator<T>>;
-using vector_container = std::vector<T>;
-// using vector_container = pt::pector<T, boost::pool_allocator<T>, uindex_t>;
+// using vector_container = std::vector<T>;
+using vector_container = pt::pector<T, boost::pool_allocator<T>, Int>;

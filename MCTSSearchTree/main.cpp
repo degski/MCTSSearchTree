@@ -59,19 +59,6 @@
 Singleton<splitmix64> rng;
 
 
-int wmain8989789 ( ) {
-
-    rng.instance ( 123u );
-
-    std::wcout << getMoves ( );
-    std::wcout << getMoves ( );
-    std::wcout << getMoves ( );
-    std::wcout << getMoves ( );
-
-    return EXIT_SUCCESS;
-}
-
-
 int wmain ( ) {
 
     rng.instance ( 123u );
@@ -89,7 +76,7 @@ int wmain ( ) {
     NodeID node2 = addNode ( g, g.root_node );
     NodeID node3 = addNode ( g, g.root_node );
 
-    for ( auto it = g.beginOut ( g.root_node ); it != ArcID::invalid; ++it ) {
+    for ( auto it = g.beginOut ( g.root_node ); it.is_valid ( ); ++it ) {
         std::wcout << *it << nl;
     }
 
