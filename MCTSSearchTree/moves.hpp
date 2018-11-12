@@ -147,6 +147,7 @@ class Moves {
     [[ nodiscard ]] auto cbegin ( ) const noexcept {
         return std::cbegin ( m_moves );
     }
+
     [[ nodiscard ]] auto end ( ) noexcept {
         return begin ( ) + m_size;
     }

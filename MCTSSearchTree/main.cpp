@@ -82,30 +82,34 @@ int wmain ( ) {
 
     // Layer 1...
 
-    NodeID node1 = addNode ( g, g.root_node, true );
-    NodeID node2 = addNode ( g, g.root_node, true );
-    NodeID node3 = addNode ( g, g.root_node, true );
+    NodeID node1 = addNode ( g, g.root_node );
+    NodeID node2 = addNode ( g, g.root_node );
+    NodeID node3 = addNode ( g, g.root_node );
+
+    for ( auto it = g.beginOut ( g.root_node ); it != ArcID::invalid; ++it ) {
+        std::wcout << *it << nl;
+    }
 
     // Layer 2...
 
-    NodeID node4 = addNode ( g, node1, true );
-    addArc ( g, node2, node4, true );
-    addArc ( g, node3, node4, true );
+    NodeID node4 = addNode ( g, node1 );
+    addArc ( g, node2, node4 );
+    addArc ( g, node3, node4 );
 
-    NodeID node5 = addNode ( g, node1, true );
-    addArc ( g, node2, node5, true );
-    addArc ( g, node3, node5, true );
+    NodeID node5 = addNode ( g, node1 );
+    addArc ( g, node2, node5 );
+    addArc ( g, node3, node5 );
 
     // Layer 3...
 
-    NodeID node6 = addNode ( g, node4, true );
-    addArc ( g, node5, node6, true );
+    NodeID node6 = addNode ( g, node4 );
+    addArc ( g, node5, node6 );
 
-    NodeID node7 = addNode ( g, node4, true );
-    addArc ( g, node5, node7, true );
+    NodeID node7 = addNode ( g, node4 );
+    addArc ( g, node5, node7 );
 
-    NodeID node8 = addNode ( g, node4, true );
-    addArc ( g, node5, node8, true );
+    NodeID node8 = addNode ( g, node4 );
+    addArc ( g, node5, node8 );
 
     std::wcout << nl;
 

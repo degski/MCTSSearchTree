@@ -67,14 +67,14 @@ using MovesType = Moves<MoveType, 256>;
 }
 
 template<typename G, typename N>
-[[ nodiscard ]] N addNode ( G & g_, N source_, const bool print = false ) noexcept {
+[[ nodiscard ]] N addNode ( G & g_, N source_ ) noexcept {
     N target = g_.addNode ( getMoves ( ) );
     const auto _ { g_.addArc ( source_, target, g_.data ( source_ ).take ( ) ) };
     return target;
 }
 
 template<typename G, typename N>
-void addArc ( G & g_, N source_, N target_, const bool print = false ) noexcept {
+void addArc ( G & g_, N source_, N target_ ) noexcept {
     const auto _ { g_.addArc ( source_, target_, g_.data ( source_ ).take ( ) ) };
 }
 
@@ -96,6 +96,6 @@ template<typename G, typename N>
 }
 
 template<typename G, typename N>
-[[ nodiscard ]] bool hasChild ( G& g_, N source_ ) noexcept {
+[[ nodiscard ]] bool hasChild ( G & g_, N source_ ) noexcept {
     return g_.hasOutArc ( source_ );
 }
