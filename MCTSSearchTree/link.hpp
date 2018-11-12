@@ -33,6 +33,7 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/pector.hpp>
 
 #include "splitmix.hpp"
 
