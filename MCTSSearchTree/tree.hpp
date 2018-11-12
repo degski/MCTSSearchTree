@@ -33,6 +33,7 @@
 #include <cereal/types/vector.hpp>
 
 #include "types.hpp"
+#include "padded.hpp"
 #include "splitmix.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
@@ -239,6 +240,9 @@ template<typename ArcData, typename NodeData>
 class SearchTree {
 
     public:
+
+    //using Arc = Padded<Arc<ArcData>>;
+    //using Node = Padded<Node<NodeData>>;
 
     using Arc = Arc<ArcData>;
     using Node = Node<NodeData>;

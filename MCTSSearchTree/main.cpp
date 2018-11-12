@@ -78,6 +78,9 @@ int wmain ( ) {
 
     using Tree = SearchTree<MoveType, MovesType>;
 
+    std::wcout << sizeof ( Tree::Arc ) << nl; //32
+    std::wcout << sizeof ( Tree::Node ) << nl; //512
+
     Tree g ( getMoves ( ) ); // Root Moves...
 
     // Layer 1...

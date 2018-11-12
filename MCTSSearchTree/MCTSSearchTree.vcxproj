@@ -212,6 +212,7 @@
     <ClInclude Include="link.hpp" />
     <ClInclude Include="mcts_emu.hpp" />
     <ClInclude Include="moves.hpp" />
+    <ClInclude Include="padded.hpp" />
     <ClInclude Include="path.hpp" />
     <ClInclude Include="tree.hpp" />
     <ClInclude Include="types.hpp" />
