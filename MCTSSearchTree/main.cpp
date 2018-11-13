@@ -45,6 +45,10 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/pector.hpp>
 
+#define NOGDI
+
+#include <plf/plf_nanotimer.h>
+
 #include "splitmix.hpp"
 #include "singleton.hpp"
 #include "tree.hpp"
@@ -59,7 +63,7 @@
 Singleton<splitmix64> rng;
 
 
-int wmain ( ) {
+int wmaineewrw ( ) {
 
     rng.instance ( 123u );
 
@@ -68,42 +72,93 @@ int wmain ( ) {
     std::wcout << sizeof ( Tree::Arc ) << nl; //32
     std::wcout << sizeof ( Tree::Node ) << nl; //512
 
-    Tree g ( getMoves ( ) ); // Root Moves...
+    Tree t ( getMoves ( ) ); // Root Moves...
 
     // Layer 1...
 
-    NodeID node1 = addNode ( g, g.root_node );
-    NodeID node2 = addNode ( g, g.root_node );
-    NodeID node3 = addNode ( g, g.root_node );
+    NodeID node1 = addNode ( t, t.root_node );
+    NodeID node2 = addNode ( t, t.root_node );
+    NodeID node3 = addNode ( t, t.root_node );
 
-    for ( auto it = g.beginOut ( g.root_node ); it.is_valid ( ); ++it ) {
+    for ( auto it = t.beginOut ( t.root_node ); it.is_valid ( ); ++it ) {
         std::wcout << *it << nl;
     }
 
     // Layer 2...
 
-    NodeID node4 = addNode ( g, node1 );
-    addArc ( g, node2, node4 );
-    addArc ( g, node3, node4 );
+    NodeID node4 = addNode ( t, node1 );
+    addArc ( t, node2, node4 );
+    addArc ( t, node3, node4 );
 
-    NodeID node5 = addNode ( g, node1 );
-    addArc ( g, node2, node5 );
-    addArc ( g, node3, node5 );
+    NodeID node5 = addNode ( t, node1 );
+    addArc ( t, node2, node5 );
+    addArc ( t, node3, node5 );
 
     // Layer 3...
 
-    NodeID node6 = addNode ( g, node4 );
-    addArc ( g, node5, node6 );
+    NodeID node6 = addNode ( t, node4 );
+    addArc ( t, node5, node6 );
 
-    NodeID node7 = addNode ( g, node4 );
-    addArc ( g, node5, node7 );
+    NodeID node7 = addNode ( t, node4 );
+    addArc ( t, node5, node7 );
 
-    NodeID node8 = addNode ( g, node4 );
-    addArc ( g, node5, node8 );
+    NodeID node8 = addNode ( t, node4 );
+    addArc ( t, node5, node8 );
 
     std::wcout << nl;
 
-    std::wcout << g.arcNum ( ) << L" " << g.nodeNum ( ) << nl;
+    std::wcout << t.arcNum ( ) << L" " << t.nodeNum ( ) << nl;
+
+    return EXIT_SUCCESS;
+}
+
+
+int wmain ( ) {
+
+    rng.instance ( 123u );
+
+    std::bernoulli_distribution b_dist1 ( 0.66 );
+    std::bernoulli_distribution b_dist2 ( 0.33 );
+
+    using Tree = SearchTree<MoveType, MovesType>;
+
+    std::wcout << sizeof ( Tree::Arc ) << nl; //32
+    std::wcout << sizeof ( Tree::Node ) << nl; //512
+
+    Tree t ( getMoves ( ) ); // Root Moves...
+
+    std::uint64_t cnt = 1024;
+
+    NodeID node = t.root_node;
+
+    plf::nanotimer timer;
+
+    double elapsed = 0.0;
+
+    {
+        timer.start ( );
+
+        while ( --cnt ) {
+
+            while ( b_dist1 ( rng.instance ( ) ) and hasChild ( t, node ) ) {
+
+                node = selectChild ( t, node );
+            }
+
+            if ( b_dist2 ( rng.instance ( ) ) and hasMoves ( t, node ) ) {
+
+                addNode ( t, node );
+            }
+
+            node = t.root_node;
+        }
+
+        elapsed = timer.get_elapsed_ms ( );
+    }
+
+    std::wcout << t.arcNum ( ) << L" - " << t.nodeNum ( ) << nl << nl;
+
+    std::wcout << static_cast<std::uint64_t> ( elapsed ) << nl;
 
     return EXIT_SUCCESS;
 }

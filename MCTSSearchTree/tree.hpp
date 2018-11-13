@@ -42,7 +42,7 @@
 #include "path.hpp"
 
 
-#define ARCID_INVALID_VALUE ( INT_MIN )
+#define ARCID_INVALID_VALUE ( 0 )
 
 struct ArcID {
 
@@ -50,7 +50,7 @@ struct ArcID {
 
     static const ArcID invalid;
 
-    explicit ArcID ( ) noexcept :
+    constexpr explicit ArcID ( ) noexcept :
         value { ARCID_INVALID_VALUE } {
     }
     explicit ArcID ( Int && v_ ) noexcept :
@@ -80,7 +80,7 @@ struct ArcID {
             out_ << L'*';
         }
         else {
-            out_ << static_cast< std::uint64_t> ( id_.value );
+            out_ << static_cast<std::uint64_t> ( id_.value );
         }
         return out_;
     }
@@ -95,10 +95,10 @@ struct ArcID {
     }
 };
 
-const ArcID ArcID::invalid { ARCID_INVALID_VALUE };
+const ArcID ArcID::invalid { };
 
 
-#define NODEID_INVALID_VALUE ( INT_MIN + 1 )
+#define NODEID_INVALID_VALUE ( 0 )
 
 struct NodeID {
 
@@ -106,7 +106,7 @@ struct NodeID {
 
     static const NodeID invalid;
 
-    explicit NodeID ( ) noexcept :
+    constexpr explicit NodeID ( ) noexcept :
         value { NODEID_INVALID_VALUE } {
     }
     explicit NodeID ( Int && v_ ) noexcept :
@@ -151,7 +151,7 @@ struct NodeID {
     }
 };
 
-const NodeID NodeID::invalid { NODEID_INVALID_VALUE };
+const NodeID NodeID::invalid { };
 
 
 template<typename DataType>
@@ -163,6 +163,8 @@ struct Arc {
     using type = ArcID;
     using data_type = DataType;
 
+    constexpr Arc ( ) noexcept {
+    }
     template<typename ... Args>
     Arc ( NodeID && s_, NodeID && t_, Args && ... args_ ) noexcept :
         source { std::move ( s_ ) },
@@ -208,14 +210,16 @@ struct Node {
     using type = NodeID;
     using data_type = DataType;
 
+    constexpr Node ( ) noexcept {
+    }
     template<typename ... Args>
     Node ( Args && ... args_ ) noexcept :
         data { std::forward<Args> ( args_ ) ... } {
     }
 
     template<typename Stream>
-    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Node n_ ) noexcept {
-        out_ << L'<' << n_.head_in << L' ' << n_.tail_in << L' ' << n_.head_out << L' ' << n_.tail_out <<  L' ' << n_.in_size << L' ' << n_.out_size << L'>';
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Node node_ ) noexcept {
+        out_ << L'<' << node_.head_in << L' ' << node_.tail_in << L' ' << node_.head_out << L' ' << node_.tail_out <<  L' ' << node_.in_size << L' ' << node_.out_size << L'>';
         return out_;
     }
 
@@ -250,10 +254,10 @@ class SearchTree {
 
     template<typename ... Args>
     SearchTree ( Args && ... args_ ) :
-        root_arc { 0 },
-        root_node { 0 } {
-        m_nodes.emplace_back ( std::forward<Args> ( args_ ) ... );
-        m_arcs.emplace_back ( NodeID::invalid, root_node );
+        root_arc { 1 },
+        root_node { 1 },
+        m_arcs { { }, { NodeID::invalid, root_node } },
+        m_nodes { { }, { std::forward<Args> ( args_ ) ...} } {
         m_nodes [ root_node.value ].head_in = m_nodes [ root_node.value ].tail_in = root_arc;
         m_nodes [ root_node.value ].in_size = 1, m_nodes [ root_node.value ].out_size = 0;
     }
@@ -262,14 +266,14 @@ class SearchTree {
     [[ maybe_unused ]] ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
         const ArcID id { m_arcs.size ( ) };
         m_arcs.emplace_back ( source_, target_, std::forward<Args> ( args_ ) ... );
-        if ( m_nodes [ source_.value ].head_out == ArcID::invalid ) {
+        if ( ArcID::invalid == m_nodes [ source_.value ].head_out ) {
             m_nodes [ source_.value ].tail_out = m_nodes [ source_.value ].head_out = id;
         }
         else {
             m_nodes [ source_.value ].tail_out = m_arcs [ m_nodes [ source_.value ].tail_out.value ].next_out = id;
         }
         ++m_nodes [ source_.value ].out_size;
-        if ( m_nodes [ target_.value ].head_in == ArcID::invalid ) {
+        if ( ArcID::invalid == m_nodes [ target_.value ].head_in ) {
             m_nodes [ target_.value ].tail_in = m_nodes [ target_.value ].head_in = id;
         }
         else {
@@ -281,21 +285,21 @@ class SearchTree {
 
     template<typename ... Args>
     [[ maybe_unused ]] NodeID addNode ( Args && ... args_ ) noexcept {
-        const NodeID node { m_nodes.size ( ) };
+        const NodeID id { m_nodes.size ( ) };
         m_nodes.emplace_back ( std::forward<Args> ( args_ ) ... );
-        return node;
+        return id;
     }
 
     class in_iterator : public std::iterator<std::forward_iterator_tag, ArcID, Int, const typename SearchTree::Arc*, const typename SearchTree::Arc&> {
 
-        const SearchTree & g;
+        const SearchTree & st;
         ArcID id;
 
         public:
 
-        in_iterator ( const SearchTree & g_, const NodeID n_ ) noexcept :
-            g { g_ },
-            id { g.m_nodes [ n_.value ].head_in } {
+        in_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
+            st { tree_ },
+            id { st.m_nodes [ node_.value ].head_in } {
         }
 
         [[ nodiscard ]] bool is_valid ( ) const noexcept {
@@ -303,22 +307,22 @@ class SearchTree {
         }
 
         [[ maybe_unused ]] in_iterator & operator ++ ( ) noexcept {
-            id = g.m_arcs [ id.value ].next_in;
+            id = st.m_arcs [ id.value ].next_in;
             return * this;
         }
 
         [[ nodiscard ]] Arc operator * ( ) noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
         [[ nodiscard ]] const Arc operator * ( ) const noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
 
         [[ nodiscard ]] Arc & operator -> ( ) noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
         [[ nodiscard ]] const Arc & operator -> ( ) const noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
     };
 
@@ -326,14 +330,14 @@ class SearchTree {
 
     class out_iterator : public std::iterator<std::forward_iterator_tag, ArcID, Int, const typename SearchTree::Arc*, const typename SearchTree::Arc&> {
 
-        const SearchTree & g;
+        const SearchTree & st;
         ArcID id;
 
         public:
 
-        out_iterator ( const SearchTree & g_, const NodeID n_ ) noexcept :
-            g { g_ },
-            id { g.m_nodes [ n_.value ].head_out } {
+        out_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
+            st { tree_ },
+            id { st.m_nodes [ node_.value ].head_out } {
         }
 
         [[ nodiscard ]] bool is_valid ( ) const noexcept {
@@ -341,39 +345,39 @@ class SearchTree {
         }
 
         [[ maybe_unused ]] out_iterator & operator ++ ( ) noexcept {
-            id = g.m_arcs [ id.value ].next_out;
+            id = st.m_arcs [ id.value ].next_out;
             return * this;
         }
 
         [[ nodiscard ]] Arc operator * ( ) noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
         [[ nodiscard ]] const Arc operator * ( ) const noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
 
         [[ nodiscard ]] Arc & operator -> ( ) noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
         [[ nodiscard ]] const Arc & operator -> ( ) const noexcept {
-            return g.m_arcs [ id.value ];
+            return st.m_arcs [ id.value ];
         }
     };
 
     using const_out_iterator = const out_iterator;
 
-    [[ nodiscard ]] Int inArcNum ( const NodeID n_ ) const noexcept {
-        return m_nodes [ n_.value ].in_size;
+    [[ nodiscard ]] Int inArcNum ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].in_size;
     }
-    [[ nodiscard ]] Int outArcNum ( const NodeID n_ ) const noexcept {
-        return m_nodes [ n_.value ].out_size;
+    [[ nodiscard ]] Int outArcNum ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].out_size;
     }
 
-    [[ nodiscard ]] bool hasInArc ( const NodeID n_ ) const noexcept {
-        return m_nodes [ n_.value ].in_size;
+    [[ nodiscard ]] bool hasInArc ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].in_size;
     }
-    [[ nodiscard ]] bool hasOutArc ( const NodeID n_ ) const noexcept {
-        return m_nodes [ n_.value ].out_size;
+    [[ nodiscard ]] bool hasOutArc ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].out_size;
     }
 
     [[ nodiscard ]] in_iterator beginIn ( const NodeID node_ ) noexcept {
@@ -423,19 +427,17 @@ class SearchTree {
     }
 
     [[ nodiscard ]] Int arcNum ( ) const noexcept {
-        return static_cast<Int> ( m_arcs.size ( ) );
+        return static_cast<Int> ( m_arcs.size ( ) ) - 1;
     }
     [[ nodiscard ]] Int nodeNum ( ) const noexcept {
-        return static_cast<Int> ( m_nodes.size ( ) );
+        return static_cast<Int> ( m_nodes.size ( ) ) - 1;
     }
+
+    ArcID root_arc;
+    NodeID root_node;
 
     private:
 
     vector_container<Arc> m_arcs;
     vector_container<Node> m_nodes;
-
-    public:
-
-    ArcID root_arc;
-    NodeID root_node;
 };

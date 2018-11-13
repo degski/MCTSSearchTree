@@ -53,6 +53,9 @@ class Moves {
 
     public:
 
+    Moves ( ) noexcept {
+    }
+
     using value_type = T;
 
     void clear ( ) noexcept {
