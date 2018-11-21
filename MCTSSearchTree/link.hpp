@@ -82,7 +82,7 @@ struct Link {
     }
 
     template<typename Stream>
-    [ [ maybe_unused ] ] friend Stream & operator << ( Stream & out_, const Link & l_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Link & l_ ) noexcept {
         out_ << L'<' << l_.arc << L' ' << l_.target << L'>';
         return out_;
     }

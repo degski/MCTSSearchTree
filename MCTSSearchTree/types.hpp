@@ -26,15 +26,5 @@
 
 using Int = std::int32_t;
 
-
-#include <pector/pector.h>
-#include <pector/malloc_allocator.h>
-#define BOOST_DISABLE_THREADS
-#include <boost/pool/pool_alloc.hpp>
-
-
 template<typename T>
-// using vector_container = pt::pector<T, pt::malloc_allocator<T, true, true>, Int>;
-// using vector_container = std::vector<T, boost::pool_allocator<T>>;
-// using vector_container = std::vector<T>;
-using vector_container = pt::pector<T, boost::pool_allocator<T>, Int>;
+using vector_container = std::vector<T>;

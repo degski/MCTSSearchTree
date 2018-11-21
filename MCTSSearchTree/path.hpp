@@ -49,6 +49,10 @@ class Path {
     using NodeID = typename Tree::NodeID;
 
     using Link = Link<Tree>;
+    using iterator = typename vector_container<Link>::iterator;
+    using const_iterator = typename vector_container<Link>::const_iterator;
+    using reference = typename vector_container<Link>::reference;
+    using const_reference = typename vector_container<Link>::const_reference;
 
     vector_container<Link> m_path;
 
@@ -85,26 +89,30 @@ class Path {
         return r;
     }
 
-    [[ nodiscard ]] auto back ( ) const noexcept {
+    [[ nodiscard ]] reference back ( ) noexcept {
+        return m_path.back ( );
+    }
+    [[ nodiscard ]] const_reference back ( ) const noexcept {
         return m_path.back ( );
     }
 
-    [[ nodiscard ]] auto begin ( ) noexcept {
+    [[ nodiscard ]] iterator begin ( ) noexcept {
         return m_path.begin ( );
     }
-    [[ nodiscard ]] auto end ( ) noexcept {
-        return m_path.end ( );
-    }
-    [[ nodiscard ]] auto begin ( ) const noexcept {
+    [[ nodiscard ]] const_iterator begin ( ) const noexcept {
         return m_path.begin ( );
     }
-    [[ nodiscard ]] auto end ( ) const noexcept {
-        return m_path.end ( );
-    }
-    [[ nodiscard ]] auto cbegin ( ) const noexcept {
+    [[ nodiscard ]] const_iterator cbegin ( ) const noexcept {
         return m_path.cbegin ( );
     }
-    [[ nodiscard ]] auto cend ( ) const noexcept {
+
+    [[ nodiscard ]] iterator end ( ) noexcept {
+        return m_path.end ( );
+    }
+    [[ nodiscard ]] const_iterator end ( ) const noexcept {
+        return m_path.end ( );
+    }
+    [[ nodiscard ]] const_iterator cend ( ) const noexcept {
         return m_path.cend ( );
     }
 

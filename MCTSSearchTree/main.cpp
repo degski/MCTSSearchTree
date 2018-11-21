@@ -127,7 +127,7 @@ int wmain ( ) {
 
     Tree t ( getMoves ( ) ); // Root Moves...
 
-    std::uint64_t cnt = 1024;
+    std::uint64_t cnt = 1024 * 1024 * 4;
 
     NodeID node = t.root_node;
 

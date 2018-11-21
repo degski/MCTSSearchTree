@@ -249,7 +249,7 @@ class SearchTree {
     public:
 
     using Arc   = Arc<ArcData>;
-    using Arcs = vector_container<Arc>;
+    using Arcs  = vector_container<Arc>;
     using Node  = Node<NodeData>;
     using Nodes = vector_container<Node>;
 
@@ -325,7 +325,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
-            return & st.m_arcs [ id.value ];
+            return st.m_arcs.data ( ) + id.value;
         }
     };
 
@@ -355,7 +355,7 @@ class SearchTree {
 
         [[ maybe_unused ]] const_in_iterator & operator ++ ( ) noexcept {
             id = st.m_arcs [ id.value ].next_in;
-            return *this;
+            return * this;
         }
 
         [[ nodiscard ]] const_reference operator * ( ) const noexcept {
@@ -363,7 +363,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
-            return &st.m_arcs [ id.value ];
+            return st.m_arcs.data ( ) + id.value;
         }
     };
 
@@ -401,7 +401,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
-            return & st.m_arcs [ id.value ];
+            return st.m_arcs.data ( ) + id.value;
         }
     };
 
@@ -439,7 +439,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
-            return & st.m_arcs [ id.value ];
+            return st.m_arcs.data ( ) + id.value;
         }
     };
 

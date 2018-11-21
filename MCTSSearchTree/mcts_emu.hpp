@@ -68,35 +68,35 @@ using MovesType = Moves<MoveType, 256>;
 }
 
 template<typename Tree, typename N>
-[[ maybe_unused ]] N addNode ( Tree & tree_, N source_ ) noexcept {
+[[ maybe_unused ]] N addNode ( Tree & tree_, const N source_ ) noexcept {
     const N target = tree_.addNode ( getMoves ( ) );
     tree_.addArc ( source_, target, tree_.data ( source_ ).take ( ) );
     return target;
 }
 
 template<typename Tree, typename N>
-void addArc ( Tree & tree_, N source_, N target_ ) noexcept {
+void addArc ( Tree & tree_, const N source_, const N target_ ) noexcept {
     tree_.addArc ( source_, target_, tree_.data ( source_ ).take ( ) );
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] bool hasMoves ( Tree & tree_, N source_ ) noexcept {
+[[ nodiscard ]] bool hasMoves ( const Tree & tree_, const N source_ ) noexcept {
     return tree_.data ( source_ ).size ( );
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] N selectChild ( const Tree & tree_, N source_ ) noexcept {
+[[ nodiscard ]] N selectChild ( const Tree & tree_, const N source_ ) noexcept {
     typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
     std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
     return it->target;
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] N selectChildVector ( Tree & tree_, N source_ ) noexcept {
+[[ nodiscard ]] N selectChildVector ( const Tree & tree_, const N source_ ) noexcept {
     return tree_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] bool hasChild ( Tree & tree_, N source_ ) noexcept {
+[[ nodiscard ]] bool hasChild ( const Tree & tree_, const N source_ ) noexcept {
     return tree_.hasOutArc ( source_ );
 }
