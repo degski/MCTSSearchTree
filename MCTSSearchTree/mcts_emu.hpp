@@ -37,6 +37,7 @@
 #include "uniform_int_distribution_fast.hpp"
 #include "moves.hpp"
 #include "singleton.hpp"
+#include "tree.hpp"
 
 
 extern Singleton<splitmix64> rng;
@@ -67,7 +68,7 @@ using MovesType = Moves<MoveType, 256>;
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] N addNode ( Tree & tree_, N source_ ) noexcept {
+[[ maybe_unused ]] N addNode ( Tree & tree_, N source_ ) noexcept {
     const N target = tree_.addNode ( getMoves ( ) );
     tree_.addArc ( source_, target, tree_.data ( source_ ).take ( ) );
     return target;
@@ -85,7 +86,7 @@ template<typename Tree, typename N>
 
 template<typename Tree, typename N>
 [[ nodiscard ]] N selectChild ( Tree & tree_, N source_ ) noexcept {
-    auto it = tree_.cbeginOut ( source_ );
+    typename Tree::out_iterator it = tree_.beginOut ( source_ );
     std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
     return it->target;
 }
