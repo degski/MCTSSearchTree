@@ -33,13 +33,9 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
-#include <cereal/types/pector.hpp>
 
 #include "types.hpp"
 #include "padded.hpp"
-#include "splitmix.hpp"
-#include "mcts_emu.hpp"
-#include "moves.hpp"
 #include "link.hpp"
 #include "path.hpp"
 
@@ -458,6 +454,7 @@ class SearchTree {
         return m_nodes [ node_.value ].out_size;
     }
 
+
     [[ nodiscard ]] in_iterator beginIn ( const NodeID node_ ) noexcept {
         return in_iterator { *this, node_ };
     }
@@ -478,6 +475,7 @@ class SearchTree {
         return const_out_iterator { *this, node_ };
     }
 
+
     [[ nodiscard ]] ArcData & data ( const ArcID arc_ ) noexcept {
         return m_arcs [ arc_.value ].data;
     }
@@ -490,6 +488,7 @@ class SearchTree {
     [[ nodiscard ]] const NodeData & data ( const NodeID node_ ) const noexcept {
         return m_nodes [ node_.value ].data;
     }
+
 
     [[ nodiscard ]] Arc & operator [ ] ( const ArcID arc_ ) noexcept {
         return m_arcs [ arc_.value ];
