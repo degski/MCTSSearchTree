@@ -85,8 +85,8 @@ template<typename Tree, typename N>
 }
 
 template<typename Tree, typename N>
-[[ nodiscard ]] N selectChild ( Tree & tree_, N source_ ) noexcept {
-    typename Tree::out_iterator it = tree_.beginOut ( source_ );
+[[ nodiscard ]] N selectChild ( const Tree & tree_, N source_ ) noexcept {
+    typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
     std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
     return it->target;
 }

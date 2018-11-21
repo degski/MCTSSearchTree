@@ -298,10 +298,12 @@ class SearchTree {
 
         public:
 
-        using difference_type = typename Arcs::difference_type;
-        using value_type = typename Arcs::value_type;
-        using reference = typename Arcs::reference;
-        using pointer = typename Arcs::pointer;
+        using difference_type   = typename Arcs::difference_type;
+        using value_type        = typename Arcs::value_type;
+        using reference         = typename Arcs::reference;
+        using pointer           = typename Arcs::pointer;
+        using const_reference   = typename Arcs::const_reference;
+        using const_pointer     = typename Arcs::const_pointer;
         using iterator_category = std::forward_iterator_tag;
 
         in_iterator ( SearchTree & tree_, const NodeID node_ ) noexcept :
@@ -334,10 +336,12 @@ class SearchTree {
 
         public:
 
-        using difference_type = typename Arcs::difference_type;
-        using value_type = typename Arcs::value_type;
-        using const_reference = const typename Arcs::reference;
-        using const_pointer = const typename Arcs::pointer;
+        using difference_type   = typename Arcs::difference_type;
+        using value_type        = typename Arcs::value_type;
+        using reference         = typename Arcs::reference;
+        using pointer           = typename Arcs::pointer;
+        using const_reference   = typename Arcs::const_reference;
+        using const_pointer     = typename Arcs::const_pointer;
         using iterator_category = std::forward_iterator_tag;
 
         const_in_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
@@ -349,7 +353,7 @@ class SearchTree {
             return ArcID::invalid != id;
         }
 
-        [[ maybe_unused ]] in_iterator & operator ++ ( ) noexcept {
+        [[ maybe_unused ]] const_in_iterator & operator ++ ( ) noexcept {
             id = st.m_arcs [ id.value ].next_in;
             return *this;
         }
@@ -370,10 +374,12 @@ class SearchTree {
 
         public:
 
-        using difference_type = typename Arcs::difference_type;
-        using value_type = typename Arcs::value_type;
-        using reference = typename Arcs::reference;
-        using pointer = typename Arcs::pointer;
+        using difference_type   = typename Arcs::difference_type;
+        using value_type        = typename Arcs::value_type;
+        using reference         = typename Arcs::reference;
+        using pointer           = typename Arcs::pointer;
+        using const_reference   = typename Arcs::const_reference;
+        using const_pointer     = typename Arcs::const_pointer;
         using iterator_category = std::forward_iterator_tag;
 
         out_iterator ( SearchTree & tree_, const NodeID node_ ) noexcept :
@@ -406,10 +412,12 @@ class SearchTree {
 
         public:
 
-        using difference_type = typename Arcs::difference_type;
-        using value_type = typename Arcs::value_type;
-        using const_reference = const typename Arcs::reference;
-        using const_pointer = const typename Arcs::pointer;
+        using difference_type   = typename Arcs::difference_type;
+        using value_type        = typename Arcs::value_type;
+        using reference         = typename Arcs::reference;
+        using pointer           = typename Arcs::pointer;
+        using const_reference   = typename Arcs::const_reference;
+        using const_pointer     = typename Arcs::const_pointer;
         using iterator_category = std::forward_iterator_tag;
 
         const_out_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
@@ -421,9 +429,9 @@ class SearchTree {
             return ArcID::invalid != id;
         }
 
-        [[ maybe_unused ]] out_iterator & operator ++ ( ) noexcept {
+        [[ maybe_unused ]] const_out_iterator & operator ++ ( ) noexcept {
             id = st.m_arcs [ id.value ].next_out;
-            return *this;
+            return * this;
         }
 
         [[ nodiscard ]] const_reference operator * ( ) const noexcept {
@@ -463,7 +471,7 @@ class SearchTree {
     [[ nodiscard ]] out_iterator beginOut ( const NodeID node_ ) noexcept {
         return out_iterator { *this, node_ };
     }
-    [[ nodiscard ]] out_iterator beginOut ( const NodeID node_ ) const noexcept {
+    [[ nodiscard ]] const_out_iterator beginOut ( const NodeID node_ ) const noexcept {
         return const_out_iterator { *this, node_ };
     }
     [[ nodiscard ]] const_out_iterator cbeginOut ( const NodeID node_ ) const noexcept {
