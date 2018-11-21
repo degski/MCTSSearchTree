@@ -45,14 +45,18 @@ constexpr T next_power_2 ( const T n_ ) noexcept {
 }
 }
 
-// Padds T to the a size of a power of 2.
+// Padds T to a size of a power of 2.
 template<typename T, std::size_t Size = detail::next_power_2 ( sizeof ( T ) ) - sizeof ( T )>
 struct Padded : public T { // Padded.
-    template<typename ... Args> Padded ( Args && ... args_ ) : T ( std::forward<Args> ( args_ ) ... ) { }
+    template<typename ... Args>
+    Padded ( Args && ... args_ ) : T ( std::forward<Args> ( args_ ) ... ) {
+    }
     private:
     char _ [ Size ];
 };
 template<typename T>
 struct Padded<T, 0> : public T { // No padding.
-    template<typename ... Args> Padded ( Args && ... args_ ) : T ( std::forward<Args> ( args_ ) ... ) { }
+    template<typename ... Args>
+    Padded ( Args && ... args_ ) : T ( std::forward<Args> ( args_ ) ... ) {
+    }
 };
