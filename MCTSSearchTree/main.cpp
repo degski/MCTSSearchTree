@@ -45,7 +45,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/pector.hpp>
 
-#define NOGDI
+#define NOGDI // Otherwise Arc is defined.
 
 #include <plf/plf_nanotimer.h>
 
@@ -63,56 +63,6 @@
 Singleton<splitmix64> rng;
 
 
-int wmaineewrw ( ) {
-
-    rng.instance ( 123u );
-
-    using Tree = SearchTree<MoveType, MovesType>;
-
-    std::wcout << sizeof ( Tree::Arc ) << nl; //32
-    std::wcout << sizeof ( Tree::Node ) << nl; //512
-
-    Tree t ( getMoves ( ) ); // Root Moves...
-
-    // Layer 1...
-
-    NodeID node1 = addNode ( t, t.root_node );
-    NodeID node2 = addNode ( t, t.root_node );
-    NodeID node3 = addNode ( t, t.root_node );
-
-    for ( auto it = t.beginOut ( t.root_node ); it.is_valid ( ); ++it ) {
-        std::wcout << *it << nl;
-    }
-
-    // Layer 2...
-
-    NodeID node4 = addNode ( t, node1 );
-    addArc ( t, node2, node4 );
-    addArc ( t, node3, node4 );
-
-    NodeID node5 = addNode ( t, node1 );
-    addArc ( t, node2, node5 );
-    addArc ( t, node3, node5 );
-
-    // Layer 3...
-
-    NodeID node6 = addNode ( t, node4 );
-    addArc ( t, node5, node6 );
-
-    NodeID node7 = addNode ( t, node4 );
-    addArc ( t, node5, node7 );
-
-    NodeID node8 = addNode ( t, node4 );
-    addArc ( t, node5, node8 );
-
-    std::wcout << nl;
-
-    std::wcout << t.arcNum ( ) << L" " << t.nodeNum ( ) << nl;
-
-    return EXIT_SUCCESS;
-}
-
-
 int wmain ( ) {
 
     rng.instance ( 123u );
@@ -127,7 +77,7 @@ int wmain ( ) {
 
     Tree t ( getMoves ( ) ); // Root Moves...
 
-    std::uint64_t cnt = 1024 * 1024 * 4;
+    std::uint64_t cnt = 1024 * 1024 * 8;
 
     NodeID node = t.root_node;
 
