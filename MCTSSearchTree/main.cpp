@@ -27,7 +27,6 @@
 #include <cstdlib>
 
 #include <array>
-#include <boost/container/deque.hpp> // MSVC STL-deque is no good.
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -53,10 +52,11 @@
 #include "singleton.hpp"
 #include "flat_search_tree.hpp"
 #include "adjacency_search_tree.hpp"
-#include "mcts_emu.hpp"
-#include "moves.hpp"
 #include "link.hpp"
 #include "path.hpp"
+#include "mcts_emu.hpp"
+#include "moves.hpp"
+
 
 #define nl L'\n'
 

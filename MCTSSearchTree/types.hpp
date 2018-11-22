@@ -23,7 +23,6 @@
 
 #pragma once
 
-
 using Int = std::int32_t;
 
 template<typename T>
