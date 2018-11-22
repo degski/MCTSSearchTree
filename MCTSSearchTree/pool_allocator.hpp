@@ -43,15 +43,14 @@
 extern "C" {
 
     WINBASEAPI
-    _Ret_maybenull_
-    _Post_writable_byte_size_ ( dwSize )
     LPVOID
     WINAPI
-    VirtualAlloc ( void*, unsigned long long, unsigned long, unsigned long );
+    VirtualAlloc ( LPVOID, SIZE_T, DWORD, DWORD );
+
     WINBASEAPI
     BOOL
     WINAPI
-    VirtualFree ( void*, unsigned long long, unsigned long );
+    VirtualFree ( LPVOID, SIZE_T, DWORD );
 }
 
 namespace pa {
