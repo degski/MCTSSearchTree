@@ -35,6 +35,10 @@
 #include <numeric>
 #include <vector>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 #include "pool_allocator.hpp"
 #include "types.hpp"
 #include "link.hpp"
@@ -77,6 +81,9 @@ class SearchTree {
         }
 
         NodeID source, target;
+
+        protected:
+
         ArcData data;
     };
 
@@ -94,7 +101,7 @@ class SearchTree {
         InList in_arcs;
         OutList out_arcs;
 
-        public:
+        protected:
 
         NodeData data;
     };

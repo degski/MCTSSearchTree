@@ -44,7 +44,7 @@
     <ClInclude Include="flat_search_tree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="adj_search_tree.hpp">
+    <ClInclude Include="adjacency_search_tree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

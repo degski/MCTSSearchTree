@@ -41,6 +41,11 @@
 
 namespace fst {
 
+template<typename ArcData, typename NodeData>
+class SearchTree;
+
+namespace detail {
+
 #define ARCID_INVALID_VALUE ( 0 )
 
 struct ArcID {
@@ -177,7 +182,7 @@ struct Arc {
     protected:
 
     template<typename ArcData, typename NodeData>
-    friend class SearchTree;
+    friend class fst::SearchTree;
 
     DataType data;
 
@@ -214,7 +219,7 @@ struct Node {
     protected:
 
     template<typename ArcData, typename NodeData>
-    friend class SearchTree;
+    friend class fst::SearchTree;
 
     DataType data;
 
@@ -228,17 +233,19 @@ struct Node {
     }
 };
 
+} // namespace detail.
+
 
 template<typename ArcData, typename NodeData>
 class SearchTree {
 
     public:
 
-    using ArcID = fst::ArcID;
-    using NodeID = fst::NodeID;
-    using Arc = Arc<ArcData>;
+    using ArcID = detail::ArcID;
+    using NodeID = detail::NodeID;
+    using Arc = detail::Arc<ArcData>;
     using Arcs = vector_container<Arc>;
-    using Node = Node<NodeData>;
+    using Node = detail::Node<NodeData>;
     using Nodes = vector_container<Node>;
     using Link = Link<SearchTree>;
     using Path = Path<SearchTree>;

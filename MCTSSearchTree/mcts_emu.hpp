@@ -86,10 +86,10 @@ template<typename Tree, typename N>
 
 template<typename Tree, typename N>
 [[ nodiscard ]] N selectChild ( const Tree & tree_, const N source_ ) noexcept {
-    if constexpr ( std::is_pointer<typename Tree::NodeID>::value ) {
+    if constexpr ( std::is_pointer<typename Tree::NodeID>::value ) { // ast.
         return tree_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
     }
-    else {
+    else { // fst.
         typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
         std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
         return it->target;

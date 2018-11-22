@@ -52,7 +52,7 @@
 #include "splitmix.hpp"
 #include "singleton.hpp"
 #include "flat_search_tree.hpp"
-#include "adj_search_tree.hpp"
+#include "adjacency_search_tree.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
 #include "link.hpp"
@@ -66,7 +66,7 @@ Singleton<splitmix64> rng;
 
 int wmain ( ) {
 
-    using namespace fst;
+    using namespace ast;
 
     rng.instance ( 123u );
 

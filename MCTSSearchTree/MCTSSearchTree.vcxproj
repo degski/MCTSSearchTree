@@ -209,7 +209,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="adj_search_tree.hpp" />
+    <ClInclude Include="adjacency_search_tree.hpp" />
     <ClInclude Include="link.hpp" />
     <ClInclude Include="mcts_emu.hpp" />
     <ClInclude Include="moves.hpp" />
