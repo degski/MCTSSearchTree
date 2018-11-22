@@ -248,6 +248,7 @@ class SearchTree {
     using Node = detail::Node<NodeData>;
     using Nodes = vector_container<Node>;
     using Link = Link<SearchTree>;
+    using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
 
     template<typename ... Args>
@@ -261,7 +262,7 @@ class SearchTree {
     }
 
     template<typename ... Args>
-    [ [ maybe_unused ] ] ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
+    [[ maybe_unused ]] ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
         const ArcID id { m_arcs.size ( ) };
         m_arcs.emplace_back ( source_, target_, std::forward<Args> ( args_ ) ... );
         if ( ArcID::invalid == m_nodes [ source_.value ].head_out ) {
@@ -282,7 +283,7 @@ class SearchTree {
     }
 
     template<typename ... Args>
-    [ [ maybe_unused ] ] NodeID addNode ( Args && ... args_ ) noexcept {
+    [[ maybe_unused ]] NodeID addNode ( Args && ... args_ ) noexcept {
         const NodeID id { m_nodes.size ( ) };
         m_nodes.emplace_back ( std::forward<Args> ( args_ ) ... );
         return id;
@@ -290,8 +291,8 @@ class SearchTree {
 
     class in_iterator {
 
-        SearchTree & st;
-        ArcID id;
+        SearchTree & m_st;
+        ArcID m_id;
 
         public:
 
@@ -304,36 +305,36 @@ class SearchTree {
         using iterator_category = std::forward_iterator_tag;
 
         in_iterator ( SearchTree & tree_, const NodeID node_ ) noexcept :
-            st { tree_ },
-            id { st.m_nodes [ node_.value ].head_in } {
+            m_st { tree_ },
+            m_id { m_st.m_nodes [ node_.value ].head_in } {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != id;
+            return ArcID::invalid != m_id;
         }
 
         [[ maybe_unused ]] in_iterator & operator ++ ( ) noexcept {
-            id = st.m_arcs [ id.value ].next_in;
+            m_id = m_st.m_arcs [ m_id.value ].next_in;
             return *this;
         }
 
         [[ nodiscard ]] reference operator * ( ) const noexcept {
-            return st.m_arcs [ id.value ];
+            return m_st.m_arcs [ m_id.value ];
         }
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
-            return st.m_arcs.data ( ) + id.value;
+            return m_st.m_arcs.data ( ) + m_id.value;
         }
 
         [[ nodiscard ]] const ArcID id ( ) const noexcept {
-            return id;
+            return m_id;
         }
     };
 
     class const_in_iterator {
 
-        const SearchTree & st;
-        ArcID id;
+        const SearchTree & m_st;
+        ArcID m_id;
 
         public:
 
@@ -346,36 +347,36 @@ class SearchTree {
         using iterator_category = std::forward_iterator_tag;
 
         const_in_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
-            st { tree_ },
-            id { st.m_nodes [ node_.value ].head_in } {
+            m_st { tree_ },
+            m_id { m_st.m_nodes [ node_.value ].head_in } {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != id;
+            return ArcID::invalid != m_id;
         }
 
         [[ maybe_unused ]] const_in_iterator & operator ++ ( ) noexcept {
-            id = st.m_arcs [ id.value ].next_in;
+            m_id = m_st.m_arcs [ m_id.value ].next_in;
             return *this;
         }
 
         [[ nodiscard ]] const_reference operator * ( ) const noexcept {
-            return st.m_arcs [ id.value ];
+            return m_st.m_arcs [ m_id.value ];
         }
 
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
-            return st.m_arcs.data ( ) + id.value;
+            return m_st.m_arcs.data ( ) + m_id.value;
         }
 
         [[ nodiscard ]] const ArcID id ( ) const noexcept {
-            return id;
+            return m_id;
         }
     };
 
     class out_iterator {
 
-        SearchTree & st;
-        ArcID id;
+        SearchTree & m_st;
+        ArcID m_id;
 
         public:
 
@@ -388,36 +389,36 @@ class SearchTree {
         using iterator_category = std::forward_iterator_tag;
 
         out_iterator ( SearchTree & tree_, const NodeID node_ ) noexcept :
-            st { tree_ },
-            id { st.m_nodes [ node_.value ].head_out } {
+            m_st { tree_ },
+            m_id { m_st.m_nodes [ node_.value ].head_out } {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != id;
+            return ArcID::invalid != m_id;
         }
 
         [[ maybe_unused ]] out_iterator & operator ++ ( ) noexcept {
-            id = st.m_arcs [ id.value ].next_out;
+            m_id = m_st.m_arcs [ m_id.value ].next_out;
             return *this;
         }
 
         [[ nodiscard ]] reference operator * ( ) const noexcept {
-            return st.m_arcs [ id.value ];
+            return m_st.m_arcs [ m_id.value ];
         }
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
-            return st.m_arcs.data ( ) + id.value;
+            return m_st.m_arcs.data ( ) + m_id.value;
         }
 
         [[ nodiscard ]] const ArcID id ( ) const noexcept {
-            return id;
+            return m_id;
         }
     };
 
     class const_out_iterator {
 
-        const SearchTree & st;
-        ArcID id;
+        const SearchTree & m_st;
+        ArcID m_id;
 
         public:
 
@@ -430,42 +431,42 @@ class SearchTree {
         using iterator_category = std::forward_iterator_tag;
 
         const_out_iterator ( const SearchTree & tree_, const NodeID node_ ) noexcept :
-            st { tree_ },
-            id { st.m_nodes [ node_.value ].head_out } {
+            m_st { tree_ },
+            m_id { m_st.m_nodes [ node_.value ].head_out } {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != id;
+            return ArcID::invalid != m_id;
         }
 
         [[ maybe_unused ]] const_out_iterator & operator ++ ( ) noexcept {
-            id = st.m_arcs [ id.value ].next_out;
+            m_id = m_st.m_arcs [ m_id.value ].next_out;
             return *this;
         }
 
         [[ nodiscard ]] const_reference operator * ( ) const noexcept {
-            return st.m_arcs [ id.value ];
+            return m_st.m_arcs [ m_id.value ];
         }
 
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
-            return st.m_arcs.data ( ) + id.value;
+            return m_st.m_arcs.data ( ) + m_id.value;
         }
 
         [[ nodiscard ]] const ArcID id ( ) const noexcept {
-            return id;
+            return m_id;
         }
     };
 
     [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
-        return { arc_, st.m_arcs [ arc_.value ].target };
+        return { arc_, m_arcs [ arc_.value ].target };
     }
-    [[ nodiscard ]] Link link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
             if ( source_ == it->source ) {
                 return { it.id ( ), target_ };
             }
         }
-        return { invalid_arc, target_ };
+        return { };
     }
     template<typename It>
     [ [ nodiscard ] ] Link link ( const It & it_ ) const noexcept {

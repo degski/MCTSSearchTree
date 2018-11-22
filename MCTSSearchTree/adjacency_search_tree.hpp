@@ -67,6 +67,7 @@ class SearchTree {
     using const_out_iterator = typename OutList::const_iterator;
 
     using Link = Link<SearchTree>;
+    using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
 
     struct Arc {
@@ -172,16 +173,16 @@ class SearchTree {
     [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
         return { arc_, arc_->target };
     }
-    [[ nodiscard ]] Link link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const ArcID arc : inArcs ( target_ ) ) {
             if ( source_ == arc->source ) {
                 return { arc, target_ };
             }
         }
-        return { invalid_arc, target_ };
+        return { };
     }
     template<typename It>
-    [ [ nodiscard ] ] Link link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
         return { *it_, it_->target };
     }
 

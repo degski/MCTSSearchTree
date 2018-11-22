@@ -29,6 +29,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <optional>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -96,3 +97,6 @@ struct Link {
         ar_ ( arc, target );
     }
 };
+
+template<typename Tree>
+using OptionalLink = std::optional<Link<Tree>>;
