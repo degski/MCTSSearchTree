@@ -51,7 +51,8 @@
 
 #include "splitmix.hpp"
 #include "singleton.hpp"
-#include "tree.hpp"
+#include "flat_search_tree.hpp"
+#include "adj_search_tree.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
 #include "link.hpp"
@@ -64,6 +65,8 @@ Singleton<splitmix64> rng;
 
 
 int wmain ( ) {
+
+    using namespace fst;
 
     rng.instance ( 123u );
 
@@ -79,7 +82,7 @@ int wmain ( ) {
 
     std::uint64_t cnt = 1024 * 1024 * 8;
 
-    NodeID node = t.root_node;
+    typename Tree::NodeID node = t.root_node;
 
     plf::nanotimer timer;
 
@@ -97,7 +100,7 @@ int wmain ( ) {
 
             if ( b_dist2 ( rng.instance ( ) ) and hasMoves ( t, node ) ) {
 
-                addNode ( t, node );
+                addChild ( t, node );
             }
 
             node = t.root_node;

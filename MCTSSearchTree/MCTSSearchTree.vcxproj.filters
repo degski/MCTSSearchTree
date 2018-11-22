@@ -35,13 +35,16 @@
     <ClInclude Include="path.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tree.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="padded.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="singleton.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flat_search_tree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="adj_search_tree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

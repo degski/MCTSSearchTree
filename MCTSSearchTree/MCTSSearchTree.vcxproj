@@ -209,13 +209,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="adj_search_tree.hpp" />
     <ClInclude Include="link.hpp" />
     <ClInclude Include="mcts_emu.hpp" />
     <ClInclude Include="moves.hpp" />
     <ClInclude Include="padded.hpp" />
     <ClInclude Include="path.hpp" />
     <ClInclude Include="singleton.hpp" />
-    <ClInclude Include="tree.hpp" />
+    <ClInclude Include="flat_search_tree.hpp" />
     <ClInclude Include="types.hpp" />
   </ItemGroup>
   <ItemGroup>

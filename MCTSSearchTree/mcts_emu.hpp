@@ -32,12 +32,12 @@
 #include <iostream>
 #include <numeric>
 #include <random>
+#include <type_traits>
 
 #include "splitmix.hpp"
 #include "uniform_int_distribution_fast.hpp"
-#include "moves.hpp"
 #include "singleton.hpp"
-#include "tree.hpp"
+#include "moves.hpp"
 
 
 extern Singleton<splitmix64> rng;
@@ -68,14 +68,14 @@ using MovesType = Moves<MoveType, 256>;
 }
 
 template<typename Tree, typename N>
-[[ maybe_unused ]] N addNode ( Tree & tree_, const N source_ ) noexcept {
+[[ maybe_unused ]] N addChild ( Tree & tree_, const N source_ ) noexcept {
     const N target = tree_.addNode ( getMoves ( ) );
     tree_.addArc ( source_, target, tree_.data ( source_ ).take ( ) );
     return target;
 }
 
 template<typename Tree, typename N>
-void addArc ( Tree & tree_, const N source_, const N target_ ) noexcept {
+void addTransistion ( Tree & tree_, const N source_, const N target_ ) noexcept {
     tree_.addArc ( source_, target_, tree_.data ( source_ ).take ( ) );
 }
 
@@ -86,14 +86,14 @@ template<typename Tree, typename N>
 
 template<typename Tree, typename N>
 [[ nodiscard ]] N selectChild ( const Tree & tree_, const N source_ ) noexcept {
-    typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
-    std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
-    return it->target;
-}
-
-template<typename Tree, typename N>
-[[ nodiscard ]] N selectChildVector ( const Tree & tree_, const N source_ ) noexcept {
-    return tree_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
+    if constexpr ( std::is_pointer<typename Tree::NodeID>::value ) {
+        return tree_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
+    }
+    else {
+        typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
+        std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
+        return it->target;
+    }
 }
 
 template<typename Tree, typename N>
