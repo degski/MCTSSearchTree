@@ -126,8 +126,8 @@ class SearchTree {
     }
 
     template<typename ... Args>
-    [[ maybe_unused ]] ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
-        ArcID arc = arcs.new_element ( source_, target_, std::forward<Args> ( args_ ) ... );
+    [[ maybe_unused ]] const ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
+        const ArcID arc = arcs.new_element ( source_, target_, std::forward<Args> ( args_ ) ... );
         ++arcs_size;
         outArcs ( source_ ).push_back ( arc );
         inArcs ( target_ ).push_back ( arc );
@@ -135,44 +135,54 @@ class SearchTree {
     }
 
     template<typename ... Args>
-    [[ maybe_unused ]] NodeID addNode ( Args && ... args_ ) noexcept {
-        NodeID node = nodes.new_element ( std::forward<Args> ( args_ ) ... );
+    [[ maybe_unused ]] const NodeID addNode ( Args && ... args_ ) noexcept {
+        const NodeID node = nodes.new_element ( std::forward<Args> ( args_ ) ... );
         ++nodes_size;
         return node;
     }
 
-    void erase ( const ArcID arc_ ) noexcept {
-        --arcs_size;
-        inArcs ( arc_->target ).erase ( std::remove ( std::begin ( inArcs ( arc_->target ) ), std::end ( inArcs ( arc_->target ) ), arc_ ) );
-        outArcs ( arc_->source ).erase ( std::remove ( std::begin ( outArcs ( arc_->source ) ), std::end ( outArcs ( arc_->source ) ), arc_ ) );
+    private:
+
+    void erase_impl ( const ArcID arc_ ) noexcept {
+        inArcs  ( arc_->target ).erase ( std::remove ( beginIn  ( arc_->target ), endIn  ( arc_->target ), arc_ ) );
+        outArcs ( arc_->source ).erase ( std::remove ( beginOut ( arc_->source ), endOut ( arc_->source ), arc_ ) );
         arcs.delete_element ( arc_ );
     }
 
+    public:
+
+    void erase ( const ArcID arc_ ) noexcept {
+        --arcs_size;
+        erase_impl ( arc_ );
+    }
+
     void erase ( const NodeID node_ ) noexcept {
-        for ( auto arc : inArcs ( node_ ) ) {
-            erase ( arc );
+        arcs_size -= inArcNum ( node_ );
+        for ( const ArcID arc : inArcs ( node_ ) ) {
+            erase_impl ( arc );
         }
-        for ( auto arc : outArcs ( node_ ) ) {
-            erase ( arc );
+        arcs_size -= outArcNum ( node_ );
+        for ( const ArcID arc : outArcs ( node_ ) ) {
+            erase_impl ( arc );
         }
         --nodes_size;
         nodes.delete_element ( node_ );
     }
 
     [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
-        return Link ( arc_, arc_->target );
+        return { arc_, arc_->target };
     }
     [[ nodiscard ]] Link link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const ArcID arc : inArcs ( target_ ) ) {
             if ( source_ == arc->source ) {
-                return Link ( arc, target_ );
+                return { arc, target_ };
             }
         }
-        return Link ( invalid_arc, target_ );
+        return { invalid_arc, target_ };
     }
     template<typename It>
     [ [ nodiscard ] ] Link link ( const It & it_ ) const noexcept {
-        return Link ( *it_, ( *it_ )->target );
+        return { *it_, it_->target };
     }
 
     [[ nodiscard ]] const bool isLeaf ( const NodeID node_ ) const noexcept {

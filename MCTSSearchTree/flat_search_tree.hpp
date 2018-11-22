@@ -308,7 +308,7 @@ class SearchTree {
             id { st.m_nodes [ node_.value ].head_in } {
         }
 
-        [ [ nodiscard ] ] bool is_valid ( ) const noexcept {
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
             return ArcID::invalid != id;
         }
 
@@ -323,6 +323,10 @@ class SearchTree {
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
             return st.m_arcs.data ( ) + id.value;
+        }
+
+        [[ nodiscard ]] const ArcID id ( ) const noexcept {
+            return id;
         }
     };
 
@@ -346,7 +350,7 @@ class SearchTree {
             id { st.m_nodes [ node_.value ].head_in } {
         }
 
-        [ [ nodiscard ] ] bool is_valid ( ) const noexcept {
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
             return ArcID::invalid != id;
         }
 
@@ -361,6 +365,10 @@ class SearchTree {
 
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
             return st.m_arcs.data ( ) + id.value;
+        }
+
+        [[ nodiscard ]] const ArcID id ( ) const noexcept {
+            return id;
         }
     };
 
@@ -384,7 +392,7 @@ class SearchTree {
             id { st.m_nodes [ node_.value ].head_out } {
         }
 
-        [ [ nodiscard ] ] bool is_valid ( ) const noexcept {
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
             return ArcID::invalid != id;
         }
 
@@ -399,6 +407,10 @@ class SearchTree {
 
         [[ nodiscard ]] pointer operator -> ( ) const noexcept {
             return st.m_arcs.data ( ) + id.value;
+        }
+
+        [[ nodiscard ]] const ArcID id ( ) const noexcept {
+            return id;
         }
     };
 
@@ -422,7 +434,7 @@ class SearchTree {
             id { st.m_nodes [ node_.value ].head_out } {
         }
 
-        [ [ nodiscard ] ] bool is_valid ( ) const noexcept {
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
             return ArcID::invalid != id;
         }
 
@@ -438,8 +450,27 @@ class SearchTree {
         [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
             return st.m_arcs.data ( ) + id.value;
         }
+
+        [[ nodiscard ]] const ArcID id ( ) const noexcept {
+            return id;
+        }
     };
 
+    [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
+        return { arc_, st.m_arcs [ arc_.value ].target };
+    }
+    [[ nodiscard ]] Link link ( const NodeID source_, const NodeID target_ ) const noexcept {
+        for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
+            if ( source_ == it->source ) {
+                return { it.id ( ), target_ };
+            }
+        }
+        return { invalid_arc, target_ };
+    }
+    template<typename It>
+    [ [ nodiscard ] ] Link link ( const It & it_ ) const noexcept {
+        return { it_.id ( ), it_->target };
+    }
 
     [[ nodiscard ]] const bool isLeaf ( const NodeID node_ ) const noexcept {
         return not ( m_nodes [ node_.value ].out_size );
