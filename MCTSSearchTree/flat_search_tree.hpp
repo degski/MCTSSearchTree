@@ -469,7 +469,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [ [ nodiscard ] ] Link link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
         return { it_.id ( ), it_->target };
     }
 

@@ -215,6 +215,7 @@
     <ClInclude Include="moves.hpp" />
     <ClInclude Include="padded.hpp" />
     <ClInclude Include="path.hpp" />
+    <ClInclude Include="pool_allocator.hpp" />
     <ClInclude Include="singleton.hpp" />
     <ClInclude Include="flat_search_tree.hpp" />
     <ClInclude Include="types.hpp" />
@@ -222,6 +223,7 @@
   <ItemGroup>
     <None Include="..\LICENSE.md" />
     <None Include="..\README.md" />
+    <None Include="pool_allocator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
