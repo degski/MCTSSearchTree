@@ -298,6 +298,9 @@ class SearchTree {
 
     class in_iterator {
 
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
         SearchTree & m_st;
         ArcID m_id;
 
@@ -339,6 +342,9 @@ class SearchTree {
     };
 
     class const_in_iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
 
         const SearchTree & m_st;
         ArcID m_id;
@@ -382,6 +388,9 @@ class SearchTree {
 
     class out_iterator {
 
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
         SearchTree & m_st;
         ArcID m_id;
 
@@ -423,6 +432,9 @@ class SearchTree {
     };
 
     class const_out_iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
 
         const SearchTree & m_st;
         ArcID m_id;
@@ -559,37 +571,37 @@ class SearchTree {
     }
 
 
-    [[ nodiscard ]] SearchTree makeSubTree ( const NodeID old_node_ ) {
+    // Destructively cut a sub-tree out of the current tree [Depth First].
+    [[ nodiscard ]] SearchTree makeSubTree ( const NodeID root_node_to_be_ ) {
 
-        assert ( NodeID::invalid != old_node_ );
+        assert ( NodeID::invalid != root_node_to_be_ );
 
+        SearchTree sub_tree { std::move ( m_nodes [ root_node_to_be_.value ].data ) };
+
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
         static Visited visited;
         visited.clear ( );
         visited.resize ( m_nodes.size ( ), NodeID::invalid );
-        visited [ old_node_.value ] = root_node;
+        visited [ root_node_to_be_.value ] = sub_tree.root_node;
 
         static Stack stack;
         stack.clear ( );
-        stack.push_back ( old_node_ );
+        stack.push_back ( root_node_to_be_ );
 
-        SearchTree new_tree { std::move ( m_nodes [ old_node_.value ].data ) };
-
-        while ( not ( stack.empty ( ) ) ) {
-
-            const NodeID parent = stack.back ( );
-            stack.pop_back ( );
-
+        while ( stack.size ( ) ) {
+            const NodeID parent = stack.back ( ); stack.pop_back ( );
             for ( out_iterator it = beginOut ( parent ); it.is_valid ( ); ++it ) {
                 const NodeID child { it->target };
                 if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
-                    visited [ child.value ] = new_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
+                    visited [ child.value ] = sub_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
                     stack.push_back ( child );
                 }
-                new_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ it.id ( ) ].data ) );
+                sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ it.m_id ].data ) );
             }
         }
 
-        return new_tree;
+        return sub_tree;
     }
 
 
