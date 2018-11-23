@@ -60,8 +60,8 @@ struct ArcID {
         value { std::move ( v_ ) } { }
     explicit ArcID ( const Int & v_ ) noexcept :
         value { v_ } { }
-    explicit ArcID ( const std::size_t & v_ ) noexcept :
-        value { static_cast< Int > ( v_ ) } { }
+    explicit ArcID ( const std::size_t v_ ) noexcept :
+        value { static_cast<Int> ( v_ ) } { }
 
     [[ nodiscard ]] constexpr const Int operator ( ) ( ) const noexcept {
         return value;
@@ -75,7 +75,7 @@ struct ArcID {
     }
 
     template<typename Stream>
-    [ [ maybe_unused ] ] friend Stream & operator << ( Stream & out_, const ArcID id_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const ArcID id_ ) noexcept {
         if ( ARCID_INVALID_VALUE == id_.value ) {
             out_ << L'*';
         }
@@ -89,7 +89,7 @@ struct ArcID {
 
     friend class cereal::access;
 
-    template < class Archive >
+    template<class Archive>
     inline void serialize ( Archive & ar_ ) {
         ar_ ( value );
     }
@@ -112,8 +112,8 @@ struct NodeID {
         value { std::move ( v_ ) } { }
     explicit NodeID ( const Int & v_ ) noexcept :
         value { v_ } { }
-    explicit NodeID ( const std::size_t & v_ ) noexcept :
-        value { static_cast< Int > ( v_ ) } { }
+    explicit NodeID ( const std::size_t v_ ) noexcept :
+        value { static_cast<Int> ( v_ ) } { }
 
     [[ nodiscard ]] constexpr const Int operator ( ) ( ) const noexcept {
         return value;
@@ -127,12 +127,12 @@ struct NodeID {
     }
 
     template<typename Stream>
-    [ [ maybe_unused ] ] friend Stream & operator << ( Stream & out_, const NodeID id_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const NodeID id_ ) noexcept {
         if ( NODEID_INVALID_VALUE == id_.value ) {
             out_ << L'*';
         }
         else {
-            out_ << static_cast< std::uint64_t > ( id_.value );
+            out_ << static_cast<std::uint64_t> ( id_.value );
         }
         return out_;
     }
@@ -141,7 +141,7 @@ struct NodeID {
 
     friend class cereal::access;
 
-    template < class Archive >
+    template<class Archive>
     inline void serialize ( Archive & ar_ ) {
         ar_ ( value );
     }
@@ -159,7 +159,8 @@ struct Arc {
     using type = ArcID;
     using data_type = DataType;
 
-    constexpr Arc ( ) noexcept { }
+    constexpr Arc ( ) noexcept {
+    }
     template<typename ... Args>
     Arc ( NodeID && s_, NodeID && t_, Args && ... args_ ) noexcept :
         source { std::move ( s_ ) },
@@ -174,7 +175,7 @@ struct Arc {
     }
 
     template<typename Stream>
-    [ [ maybe_unused ] ] friend Stream & operator << ( Stream & out_, const Arc a_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Arc a_ ) noexcept {
         out_ << L'<' << a_.source << L' ' << a_.target << L' ' << a_.next_in << L' ' << a_.next_out << L'>';
         return out_;
     }
@@ -205,13 +206,15 @@ struct Node {
     using type = NodeID;
     using data_type = DataType;
 
-    constexpr Node ( ) noexcept { }
+    constexpr Node ( ) noexcept {
+    }
     template<typename ... Args>
     Node ( Args && ... args_ ) noexcept :
-        data { std::forward<Args> ( args_ ) ... } { }
+        data { std::forward<Args> ( args_ ) ... } {
+    }
 
     template<typename Stream>
-    [ [ maybe_unused ] ] friend Stream & operator << ( Stream & out_, const Node node_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Node node_ ) noexcept {
         out_ << L'<' << node_.head_in << L' ' << node_.tail_in << L' ' << node_.head_out << L' ' << node_.tail_out << L' ' << node_.in_size << L' ' << node_.out_size << L'>';
         return out_;
     }
@@ -542,6 +545,7 @@ class SearchTree {
     [[ nodiscard ]] const Node & operator [ ] ( const NodeID node_ ) const noexcept {
         return m_nodes [ node_.value ];
     }
+
 
     [[ nodiscard ]] const Int arcNum ( ) const noexcept {
         return static_cast< Int > ( m_arcs.size ( ) ) - 1;
