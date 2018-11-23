@@ -29,6 +29,8 @@
 #include <cstdlib>
 
 #include <iterator>
+#include <optional>
+#include <vector>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -250,9 +252,11 @@ class SearchTree {
     using Arcs = tagged_vector<Arc>;
     using Node = detail::Node<NodeData>;
     using Nodes = tagged_vector<Node>;
-    using Transistion = Transistion<SearchTree>;
-    using OptionalLink = OptionalLink<SearchTree>;
+    using Transition = Transition<SearchTree>;
+    using OptTransition = OptTransition<SearchTree>;
     using Path = Path<SearchTree>;
+    using Visited = std::vector<NodeID>; // New m_nodes by old_index.
+    using Stack = std::vector<NodeID>;
 
     template<typename ... Args>
     SearchTree ( Args && ... args_ ) :
@@ -460,10 +464,10 @@ class SearchTree {
         }
     };
 
-    [[ nodiscard ]] Transistion link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
         return { arc_, m_arcs [ arc_.value ].target };
     }
-    [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
             if ( source_ == it->source ) {
                 return { it.id ( ), target_ };
@@ -472,7 +476,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Transistion link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
         return { it_.id ( ), it_->target };
     }
 
@@ -548,11 +552,46 @@ class SearchTree {
 
 
     [[ nodiscard ]] const Int arcNum ( ) const noexcept {
-        return static_cast< Int > ( m_arcs.size ( ) ) - 1;
+        return static_cast<Int> ( m_arcs.size ( ) ) - 1;
     }
     [[ nodiscard ]] const Int nodeNum ( ) const noexcept {
-        return static_cast< Int > ( m_nodes.size ( ) ) - 1;
+        return static_cast<Int> ( m_nodes.size ( ) ) - 1;
     }
+
+
+    [[ nodiscard ]] SearchTree makeSubTree ( const NodeID old_node_ ) {
+
+        assert ( NodeID::invalid != old_node_ );
+
+        static Visited visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), NodeID::invalid );
+        visited [ old_node_.value ] = root_node;
+
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( old_node_ );
+
+        SearchTree new_tree { std::move ( m_nodes [ old_node_.value ].data ) };
+
+        while ( not ( stack.empty ( ) ) ) {
+
+            const NodeID parent = stack.back ( );
+            stack.pop_back ( );
+
+            for ( out_iterator it = beginOut ( parent ); it.is_valid ( ); ++it ) {
+                const NodeID child { it->target };
+                if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
+                    visited [ child.value ] = new_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
+                    stack.push_back ( child );
+                }
+                new_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ it.id ( ) ].data ) );
+            }
+        }
+
+        return new_tree;
+    }
+
 
     ArcID root_arc;
     NodeID root_node;

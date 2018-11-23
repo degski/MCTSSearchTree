@@ -68,8 +68,8 @@ class SearchTree {
     using out_iterator = typename OutList::iterator;
     using const_out_iterator = typename OutList::const_iterator;
 
-    using Transistion = Transistion<SearchTree>;
-    using OptionalLink = OptionalLink<SearchTree>;
+    using Transition = Transition<SearchTree>;
+    using OptTransition = OptTransition<SearchTree>;
     using Path = Path<SearchTree>;
 
     struct Arc {
@@ -172,10 +172,10 @@ class SearchTree {
         m_nodes.delete_element ( node_ );
     }
 
-    [[ nodiscard ]] Transistion link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
         return { arc_, arc_->target };
     }
-    [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const ArcID arc : inArcs ( target_ ) ) {
             if ( source_ == arc->source ) {
                 return { arc, target_ };
@@ -184,7 +184,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Transistion link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
         return { *it_, it_->target };
     }
 

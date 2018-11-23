@@ -38,7 +38,7 @@
 
 
 template<typename Tree>
-struct Transistion {
+struct Transition {
 
     using ArcID = typename Tree::ArcID;
     using NodeID = typename Tree::NodeID;
@@ -46,42 +46,42 @@ struct Transistion {
     ArcID arc;
     NodeID target;
 
-    Transistion ( ) noexcept {
+    Transition ( ) noexcept {
     }
-    Transistion ( Transistion && l_ ) noexcept :
+    Transition ( Transition && l_ ) noexcept :
         arc { std::move ( l_.arc ) },
         target { std::move ( l_.target ) } {
     }
-    Transistion ( const Transistion & l_ ) noexcept :
+    Transition ( const Transition & l_ ) noexcept :
         arc { l_.arc },
         target { l_.target } {
     }
-    Transistion ( const ArcID a_, const NodeID t_ ) noexcept :
+    Transition ( const ArcID a_, const NodeID t_ ) noexcept :
         arc { a_ },
         target { t_ } {
     }
-    Transistion ( const ArcID a_ ) noexcept :
+    Transition ( const ArcID a_ ) noexcept :
         arc { a_ } {
     }
-    Transistion ( const NodeID t_ ) noexcept :
+    Transition ( const NodeID t_ ) noexcept :
         target { t_ } {
     }
 
-    [[ nodiscard ]] bool operator == ( const Transistion & rhs_ ) const noexcept {
+    [[ nodiscard ]] bool operator == ( const Transition & rhs_ ) const noexcept {
         return arc == rhs_.arc and target == rhs_.target;
     }
-    [[ nodiscard ]] bool operator != ( const Transistion & rhs_ ) const noexcept {
+    [[ nodiscard ]] bool operator != ( const Transition & rhs_ ) const noexcept {
         return arc != rhs_.arc or target != rhs_.target;
     }
 
-    [[ maybe_unused ]] Transistion & operator = ( const Transistion & l_ ) noexcept {
+    [[ maybe_unused ]] Transition & operator = ( const Transition & l_ ) noexcept {
         arc = l_.arc;
         target = l_.target;
         return * this;
     }
 
     template<typename Stream>
-    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Transistion & l_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Transition & l_ ) noexcept {
         out_ << L'<' << l_.arc << L' ' << l_.target << L'>';
         return out_;
     }
@@ -97,4 +97,4 @@ struct Transistion {
 };
 
 template<typename Tree>
-using OptionalLink = std::optional<Transistion<Tree>>;
+using OptTransition = std::optional<Transition<Tree>>;
