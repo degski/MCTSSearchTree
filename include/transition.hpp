@@ -36,8 +36,6 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/pector.hpp>
 
-#include "splitmix.hpp"
-
 
 template<typename Tree>
 struct Transistion {

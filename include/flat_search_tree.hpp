@@ -35,9 +35,9 @@
 #include <cereal/types/vector.hpp>
 
 #include "types.hpp"
-#include "padded.hpp"
 #include "transition.hpp"
 #include "path.hpp"
+
 
 namespace fst {
 
