@@ -36,7 +36,7 @@
 
 #include "types.hpp"
 #include "padded.hpp"
-#include "link.hpp"
+#include "transition.hpp"
 #include "path.hpp"
 
 namespace fst {
@@ -244,10 +244,10 @@ class SearchTree {
     using ArcID = detail::ArcID;
     using NodeID = detail::NodeID;
     using Arc = detail::Arc<ArcData>;
-    using Arcs = vector_container<Arc>;
+    using Arcs = tagged_vector<Arc>;
     using Node = detail::Node<NodeData>;
-    using Nodes = vector_container<Node>;
-    using Link = Link<SearchTree>;
+    using Nodes = tagged_vector<Node>;
+    using Transistion = Transistion<SearchTree>;
     using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
 
@@ -256,7 +256,7 @@ class SearchTree {
         root_arc { 1 },
         root_node { 1 },
         m_arcs { { }, { NodeID::invalid, root_node } },
-        m_nodes { { }, { std::forward<Args> ( args_ ) ...} } {
+        m_nodes { { }, { std::forward<Args> ( args_ ) ... } } {
         m_nodes [ root_node.value ].head_in = m_nodes [ root_node.value ].tail_in = root_arc;
         m_nodes [ root_node.value ].in_size = 1, m_nodes [ root_node.value ].out_size = 0;
     }
@@ -457,7 +457,7 @@ class SearchTree {
         }
     };
 
-    [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Transistion link ( const ArcID arc_ ) const noexcept {
         return { arc_, m_arcs [ arc_.value ].target };
     }
     [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
@@ -469,7 +469,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Transistion link ( const It & it_ ) const noexcept {
         return { it_.id ( ), it_->target };
     }
 

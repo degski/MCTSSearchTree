@@ -52,7 +52,7 @@
 #include "singleton.hpp"
 #include "flat_search_tree.hpp"
 #include "adjacency_search_tree.hpp"
-#include "link.hpp"
+#include "transition.hpp"
 #include "path.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
@@ -66,7 +66,7 @@ Singleton<splitmix64> rng;
 
 int wmain ( ) {
 
-    using namespace ast;
+    using namespace fst;
 
     rng.instance ( 123u );
 
@@ -78,9 +78,9 @@ int wmain ( ) {
     std::wcout << sizeof ( Tree::Arc ) << nl; //32
     std::wcout << sizeof ( Tree::Node ) << nl; //512
 
-    Tree t ( getMoves ( ) ); // Root Moves...
+    Tree t ( getMoves ( ) ); // Root Moves.
 
-    std::uint64_t cnt = 1024 * 1024 * 8;
+    std::uint64_t cnt = 1024 * 1024 * 4;
 
     typename Tree::NodeID node = t.root_node;
 

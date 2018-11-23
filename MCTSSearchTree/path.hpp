@@ -37,7 +37,7 @@
 
 #include "types.hpp"
 #include "splitmix.hpp"
-#include "link.hpp"
+#include "transition.hpp"
 
 
 template<typename Tree>
@@ -48,24 +48,26 @@ class Path {
     using ArcID = typename Tree::ArcID;
     using NodeID = typename Tree::NodeID;
 
-    using Link = Link<Tree>;
-    using iterator = typename vector_container<Link>::iterator;
-    using const_iterator = typename vector_container<Link>::const_iterator;
-    using reference = typename vector_container<Link>::reference;
-    using const_reference = typename vector_container<Link>::const_reference;
+    using Transistion = Transistion<Tree>;
+    using iterator = typename tagged_vector<Transistion>::iterator;
+    using const_iterator = typename tagged_vector<Transistion>::const_iterator;
+    using reference = typename tagged_vector<Transistion>::reference;
+    using const_reference = typename tagged_vector<Transistion>::const_reference;
 
-    vector_container<Link> m_path;
+    struct path_tag { };
+
+    tagged_vector<Transistion, std::allocator<Transistion>, path_tag> m_path;
 
     public:
 
     Path ( ) noexcept :
         m_path { } {
     }
-    Path ( const Link & l_ ) noexcept :
+    Path ( const Transistion & l_ ) noexcept :
         m_path { 1u, l_ } {
     }
     Path ( const ArcID a_, const NodeID t_ ) noexcept :
-        m_path { 1u, Link { a_, t_ } } {
+        m_path { 1u, Transistion { a_, t_ } } {
     }
 
     void reset ( const ArcID a_, const NodeID t_ ) noexcept {
@@ -74,17 +76,17 @@ class Path {
         m_path [ 0u ].target = t_;
     }
 
-    void emplace ( Link && l_ ) noexcept {
+    void emplace ( Transistion && l_ ) noexcept {
         m_path.emplace_back ( std::move ( l_ ) );
     }
-    void push ( const Link & l_ ) noexcept {
+    void push ( const Transistion & l_ ) noexcept {
         m_path.push_back ( l_ );
     }
     void push ( const ArcID a_, const NodeID t_ ) noexcept {
         m_path.emplace_back ( a_, t_ );
     }
-    [[ maybe_unused ]] Link pop ( ) noexcept {
-        const Link r { m_path.back ( ) };
+    [[ maybe_unused ]] Transistion pop ( ) noexcept {
+        const Transistion r { m_path.back ( ) };
         m_path.pop_back ( );
         return r;
     }

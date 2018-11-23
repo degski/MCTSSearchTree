@@ -23,7 +23,47 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+
+#include <vector>
+
 using Int = std::int32_t;
 
-template<typename T>
-using vector_container = std::vector<T>;
+struct std_tag { };
+
+// Tagged vector class, ast-InLists and ast-OutLists are now different types.
+template<typename T, typename A = std::allocator<T>, typename Tag = std_tag>
+class tagged_vector final : private std::vector<T, A> {
+
+    public:
+
+    using category = Tag;
+    using vector = std::vector<T, A>;
+    using difference_type = typename vector::difference_type;
+    using value_type = typename vector::value_type;
+    using reference = typename vector::reference;
+    using const_reference = typename vector::const_reference;
+    using pointer = typename vector::pointer;
+    using const_pointer = typename vector::const_pointer;
+    using iterator = typename vector::iterator;
+    using const_iterator = typename vector::const_iterator;
+
+    using vector::vector;
+    using vector::push_back;
+    using vector::emplace_back;
+    using vector::back;
+    using vector::pop_back;
+    using vector::resize;
+    using vector::size;
+    using vector::empty;
+    using vector::clear;
+    using vector::reserve;
+    using vector::data;
+    using vector::begin;
+    using vector::end;
+    using vector::cbegin;
+    using vector::cend;
+    using vector::operator [ ];
+};

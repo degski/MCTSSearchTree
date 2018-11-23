@@ -29,9 +29,6 @@
     <ClInclude Include="types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="link.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="path.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pool_allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="transition.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

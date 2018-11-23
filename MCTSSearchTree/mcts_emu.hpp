@@ -56,7 +56,7 @@ struct MoveType {
     }
 };
 
-using MovesType = Moves<MoveType, 256>;
+using MovesType = Moves<MoveType, 64>;
 
 
 [[ nodiscard ]] MovesType getMoves ( ) noexcept {
@@ -86,12 +86,13 @@ template<typename Tree, typename N>
 
 template<typename Tree, typename N>
 [[ nodiscard ]] N selectChild ( const Tree & tree_, const N source_ ) noexcept {
+    const std::uint32_t n = ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) );
     if constexpr ( std::is_pointer<typename Tree::NodeID>::value ) { // ast.
-        return tree_.outArcs ( source_ ) [ ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) ]->target;
+        return tree_.outArcs ( source_ ) [ n ]->target;
     }
     else { // fst.
         typename Tree::const_out_iterator it = tree_.cbeginOut ( source_ );
-        std::advance ( it, ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) ) );
+        std::advance ( it, n );
         return it->target;
     }
 }

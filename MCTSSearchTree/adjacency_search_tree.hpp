@@ -40,7 +40,7 @@
 
 #include "pool_allocator.hpp"
 #include "types.hpp"
-#include "link.hpp"
+#include "transition.hpp"
 #include "path.hpp"
 
 
@@ -57,15 +57,18 @@ class SearchTree {
     using ArcID = Arc*;
     using NodeID = Node*;
 
-    using InList = vector_container<ArcID>;
+    struct inlist_tag { };
+    struct outlist_tag { };
+
+    using InList = tagged_vector<ArcID, std::allocator<ArcID>, inlist_tag>;
     using in_iterator = typename InList::iterator;
     using const_in_iterator = typename InList::const_iterator;
 
-    using OutList = vector_container<ArcID>;
+    using OutList = tagged_vector<ArcID, std::allocator<ArcID>, outlist_tag>;
     using out_iterator = typename OutList::iterator;
     using const_out_iterator = typename OutList::const_iterator;
 
-    using Link = Link<SearchTree>;
+    using Transistion = Transistion<SearchTree>;
     using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
 
@@ -98,8 +101,8 @@ class SearchTree {
 
         private:
 
-        InList in_arcs;
-        OutList out_arcs;
+        InList m_in_arcs;
+        OutList m_out_arcs;
 
         protected:
 
@@ -112,10 +115,10 @@ class SearchTree {
 
     template<typename ... Args>
     SearchTree ( Args && ... args_ ) :
-        arcs_size { 0 },
-        nodes_size { 0 },
-        arcs { },
-        nodes { },
+        m_arcs_size { 0 },
+        m_nodes_size { 0 },
+        m_arcs { },
+        m_nodes { },
         root_node { addNode ( std::forward<Args> ( args_ ) ... ) },
         top_node { root_node } {
     }
@@ -127,8 +130,8 @@ class SearchTree {
 
     template<typename ... Args>
     [[ maybe_unused ]] const ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
-        const ArcID arc = arcs.new_element ( source_, target_, std::forward<Args> ( args_ ) ... );
-        ++arcs_size;
+        const ArcID arc = m_arcs.new_element ( source_, target_, std::forward<Args> ( args_ ) ... );
+        ++m_arcs_size;
         outArcs ( source_ ).push_back ( arc );
         inArcs ( target_ ).push_back ( arc );
         return arc;
@@ -136,8 +139,8 @@ class SearchTree {
 
     template<typename ... Args>
     [[ maybe_unused ]] const NodeID addNode ( Args && ... args_ ) noexcept {
-        const NodeID node = nodes.new_element ( std::forward<Args> ( args_ ) ... );
-        ++nodes_size;
+        const NodeID node = m_nodes.new_element ( std::forward<Args> ( args_ ) ... );
+        ++m_nodes_size;
         return node;
     }
 
@@ -146,30 +149,30 @@ class SearchTree {
     void erase_impl ( const ArcID arc_ ) noexcept {
         inArcs  ( arc_->target ).erase ( std::remove ( beginIn  ( arc_->target ), endIn  ( arc_->target ), arc_ ) );
         outArcs ( arc_->source ).erase ( std::remove ( beginOut ( arc_->source ), endOut ( arc_->source ), arc_ ) );
-        arcs.delete_element ( arc_ );
+        m_arcs.delete_element ( arc_ );
     }
 
     public:
 
     void erase ( const ArcID arc_ ) noexcept {
-        --arcs_size;
+        --m_arcs_size;
         erase_impl ( arc_ );
     }
 
     void erase ( const NodeID node_ ) noexcept {
-        arcs_size -= inArcNum ( node_ );
+        m_arcs_size -= inArcNum ( node_ );
         for ( const ArcID arc : inArcs ( node_ ) ) {
             erase_impl ( arc );
         }
-        arcs_size -= outArcNum ( node_ );
+        m_arcs_size -= outArcNum ( node_ );
         for ( const ArcID arc : outArcs ( node_ ) ) {
             erase_impl ( arc );
         }
-        --nodes_size;
-        nodes.delete_element ( node_ );
+        --m_nodes_size;
+        m_nodes.delete_element ( node_ );
     }
 
-    [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Transistion link ( const ArcID arc_ ) const noexcept {
         return { arc_, arc_->target };
     }
     [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
@@ -181,29 +184,29 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Transistion link ( const It & it_ ) const noexcept {
         return { *it_, it_->target };
     }
 
     [[ nodiscard ]] const bool isLeaf ( const NodeID node_ ) const noexcept {
-        return node_->out_arcs.empty ( );
+        return node_->m_out_arcs.empty ( );
     }
     [[ nodiscard ]] const bool isInternal ( const NodeID node_ ) const noexcept {
-        return node_->out_arcs.size ( );
+        return node_->m_out_arcs.size ( );
     }
 
     [[ nodiscard ]] const std::size_t inArcNum ( const NodeID node_ ) const noexcept {
-        return node_->in_arcs.size ( );
+        return node_->m_in_arcs.size ( );
     }
     [[ nodiscard ]] const std::size_t outArcNum ( const NodeID node_ ) const noexcept {
-        return node_->out_arcs.size ( );
+        return node_->m_out_arcs.size ( );
     }
 
     [[ nodiscard ]] const bool hasInArc ( const NodeID node_ ) const noexcept {
-        return node_->in_arcs.size ( );
+        return node_->m_in_arcs.size ( );
     }
     [[ nodiscard ]] const bool hasOutArc ( const NodeID node_ ) const noexcept {
-        return node_->out_arcs.size ( );
+        return node_->m_out_arcs.size ( );
     }
 
     [[ nodiscard ]] in_iterator beginIn ( const NodeID node_ ) noexcept {
@@ -271,31 +274,31 @@ class SearchTree {
     }
 
     [[ nodiscard ]] const std::size_t nodeNum ( ) const noexcept {
-        return nodes_size;
+        return m_nodes_size;
     }
     [[ nodiscard ]] const std::size_t arcNum ( ) const noexcept {
-        return arcs_size;
+        return m_arcs_size;
     }
 
     [[ nodiscard ]] InList & inArcs ( const NodeID node_ ) noexcept {
-        return node_->in_arcs;
+        return node_->m_in_arcs;
     }
     [[ nodiscard ]] const InList & inArcs ( const NodeID node_ ) const noexcept {
-        return node_->in_arcs;
+        return node_->m_in_arcs;
     }
     [[ nodiscard ]] OutList & outArcs ( const NodeID node_ ) noexcept {
-        return node_->out_arcs;
+        return node_->m_out_arcs;
     }
     [[ nodiscard ]] const OutList & outArcs ( const NodeID node_ ) const noexcept {
-        return node_->out_arcs;
+        return node_->m_out_arcs;
     }
 
     private:
 
-    std::size_t arcs_size, nodes_size;
+    std::size_t m_arcs_size, m_nodes_size;
 
-    Arcs arcs;
-    Nodes nodes;
+    Arcs m_arcs;
+    Nodes m_nodes;
 
     public:
 

@@ -210,7 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adjacency_search_tree.hpp" />
-    <ClInclude Include="link.hpp" />
+    <ClInclude Include="transition.hpp" />
     <ClInclude Include="mcts_emu.hpp" />
     <ClInclude Include="moves.hpp" />
     <ClInclude Include="padded.hpp" />
