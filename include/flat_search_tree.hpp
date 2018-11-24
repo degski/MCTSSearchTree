@@ -28,8 +28,10 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <iostream>
 #include <iterator>
 #include <optional>
+#include <boost/container/deque.hpp>
 #include <vector>
 
 #include <cereal/cereal.hpp>
@@ -257,6 +259,7 @@ class SearchTree {
     using Path = Path<SearchTree>;
     using Visited = std::vector<NodeID>; // New m_nodes by old_index.
     using Stack = std::vector<NodeID>;
+    using Queue = boost::container::deque<NodeID>;
 
     template<typename ... Args>
     SearchTree ( Args && ... args_ ) :
@@ -564,31 +567,27 @@ class SearchTree {
 
 
     [[ nodiscard ]] const Int arcNum ( ) const noexcept {
-        return static_cast<Int> ( m_arcs.size ( ) ) - 1;
+        return static_cast<Int> ( m_arcs.size ( ) ) - 2;
     }
     [[ nodiscard ]] const Int nodeNum ( ) const noexcept {
         return static_cast<Int> ( m_nodes.size ( ) ) - 1;
     }
 
 
-    // Destructively cut a sub-tree out of the current tree [Depth First].
+    // Destructively construct a sub-tree out of the current tree [Depth First].
     [[ nodiscard ]] SearchTree makeSubTree ( const NodeID root_node_to_be_ ) {
-
         assert ( NodeID::invalid != root_node_to_be_ );
-
+        assert ( root_node != root_node_to_be_ );
         SearchTree sub_tree { std::move ( m_nodes [ root_node_to_be_.value ].data ) };
-
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid.
         static Visited visited;
         visited.clear ( );
         visited.resize ( m_nodes.size ( ), NodeID::invalid );
         visited [ root_node_to_be_.value ] = sub_tree.root_node;
-
         static Stack stack;
         stack.clear ( );
         stack.push_back ( root_node_to_be_ );
-
         while ( stack.size ( ) ) {
             const NodeID parent = stack.back ( ); stack.pop_back ( );
             for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
@@ -600,10 +599,87 @@ class SearchTree {
                 sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ a.value ].data ) );
             }
         }
-
         return sub_tree;
     }
 
+    void walkTreeBF ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+        assert ( NodeID::invalid != root_node_to_be_ );
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        static std::vector<bool> visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), false );
+        visited [ root_node_to_be_.value ] = true;
+        static Queue queue;
+        queue.clear ( );
+        queue.push_back ( root_node_to_be_ );
+        while ( queue.size ( ) ) {
+            const NodeID parent = queue.front ( ); queue.pop_front ( );
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
+                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
+                    visited [ child.value ] = true;
+                    queue.push_back ( child );
+                }
+                std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+            }
+        }
+    }
+
+    void walkTreeDF ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+        assert ( NodeID::invalid != root_node_to_be_ );
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        static std::vector<bool> visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), false );
+        visited [ root_node_to_be_.value ] = true;
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( root_node_to_be_ );
+        while ( stack.size ( ) ) {
+            const NodeID parent = stack.back ( ); stack.pop_back ( );
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
+                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
+                    visited [ child.value ] = true;
+                    stack.push_back ( child );
+                }
+                std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+            }
+        }
+    }
+
+    // Topological sorting, using Kahn's alogorithm.
+    void topologicalSort ( ) const noexcept {
+        std::vector<NodeID> sorted;
+        static std::vector<bool> removed_arcs;
+        removed_arcs.clear ( );
+        removed_arcs.resize ( m_arcs.size ( ), false );
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( root_node );
+        while ( stack.size ( ) ) {
+            sorted.push_back ( stack.back ( ) ); stack.pop_back ( );
+            for ( ArcID out = m_nodes [ sorted.back ( ).value ].head_out; ArcID::invalid != out; out = m_arcs [ out.value ].next_out ) {
+                removed_arcs [ out.value ] = true;
+                bool has_no_in_arcs = true;
+                for ( ArcID in = m_nodes [ m_arcs [ out.value ].target.value ].head_in; ArcID::invalid != in; in = m_arcs [ in.value ].next_in ) {
+                    if ( not ( removed_arcs [ in.value ] ) ) {
+                        has_no_in_arcs = false;
+                        break;
+                    }
+                }
+                if ( has_no_in_arcs ) {
+                    stack.push_back ( m_arcs [ out.value ].target );
+                }
+            }
+        }
+        for ( auto n : sorted ) {
+            std::wcout << n << L' ';
+        }
+        std::wcout << L'\n';
+    }
 
     ArcID root_arc;
     NodeID root_node;
