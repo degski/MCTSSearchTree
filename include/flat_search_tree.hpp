@@ -28,11 +28,13 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <optional>
-#include <boost/container/deque.hpp>
 #include <vector>
+
+#include <boost/container/deque.hpp>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -603,7 +605,7 @@ class SearchTree {
     }
 
 
-    void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+    void traverseBreadthFirst ( const NodeID root_node_to_be_, std::function<void ( ArcData & )> fa_, std::function<void ( NodeData & )> fn_ ) { // Default is to walk the whole tree.
         assert ( NodeID::invalid != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid.
@@ -614,6 +616,9 @@ class SearchTree {
         static Queue queue;
         queue.clear ( );
         queue.push_back ( root_node_to_be_ );
+
+        fn_ ( m_nodes [ root_node_to_be_.value ].data );
+
         while ( queue.size ( ) ) {
             const NodeID parent = queue.front ( ); queue.pop_front ( );
             for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
@@ -621,8 +626,15 @@ class SearchTree {
                 if ( not ( visited [ child.value ] ) ) { // Not visited yet.
                     visited [ child.value ] = true;
                     queue.push_back ( child );
+
+                    // All nodes traversed once here.
+
+                    fn_ ( m_nodes [ child.value ].data );
                 }
-                std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+
+                // All arcs traversed once here [nodes are traversed (possibly) several times].
+
+                fa_ ( m_arcs [ a.value ].data );
             }
         }
     }
@@ -645,8 +657,9 @@ class SearchTree {
                 if ( not ( visited [ child.value ] ) ) { // Not visited yet.
                     visited [ child.value ] = true;
                     stack.push_back ( child );
+                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
                 }
-                std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+                // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
             }
         }
     }

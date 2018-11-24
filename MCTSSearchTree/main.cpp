@@ -68,6 +68,17 @@ int random_int ( ) noexcept {
 }
 
 
+template<typename Data>
+void print_arc_data ( Data & d_ ) {
+    std::wcout << L"arc " << d_ << nl;
+}
+
+template<typename Data>
+void print_node_data ( Data & d_ ) {
+    std::wcout << L"node " << d_ << nl;
+}
+
+
 int wmain ( ) {
 
     using namespace fst;
@@ -125,11 +136,11 @@ int wmain ( ) {
 
     std::wcout << s.arcNum ( ) << L" - " << s.nodeNum ( ) << nl << nl;
 
-    t.walkTreeDF ( );
+    t.traverseBreadthFirst ( Node { 1 }, std::function<void(int&)> { print_arc_data<int> }, std::function<void ( int& )> { print_node_data<int> } );
 
     std::wcout << nl << nl;
 
-    t.walkTreeBF ( );
+    t.traverseDepthFirst  ( );
 
     std::wcout << nl << nl;
 
