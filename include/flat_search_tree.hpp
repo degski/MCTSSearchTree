@@ -602,7 +602,8 @@ class SearchTree {
         return sub_tree;
     }
 
-    void walkTreeBF ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+
+    void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
         assert ( NodeID::invalid != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid.
@@ -626,7 +627,7 @@ class SearchTree {
         }
     }
 
-    void walkTreeDF ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+    void traverseDepthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
         assert ( NodeID::invalid != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid.
@@ -650,8 +651,8 @@ class SearchTree {
         }
     }
 
-    // Topological sorting, using Kahn's alogorithm.
-    void topologicalSort ( ) const noexcept {
+    // Topological sorting, using Kahn's alogorithm (does not traverse all arcs).
+    std::vector<NodeID> topologicalSort ( ) const noexcept {
         std::vector<NodeID> sorted;
         static std::vector<bool> removed_arcs;
         removed_arcs.clear ( );
@@ -675,10 +676,7 @@ class SearchTree {
                 }
             }
         }
-        for ( auto n : sorted ) {
-            std::wcout << n << L' ';
-        }
-        std::wcout << L'\n';
+        return sorted;
     }
 
     ArcID root_arc;
