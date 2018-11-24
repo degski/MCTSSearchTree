@@ -591,13 +591,13 @@ class SearchTree {
 
         while ( stack.size ( ) ) {
             const NodeID parent = stack.back ( ); stack.pop_back ( );
-            for ( out_iterator it = beginOut ( parent ); it.is_valid ( ); ++it ) {
-                const NodeID child { it->target };
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
                 if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
                     visited [ child.value ] = sub_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
                     stack.push_back ( child );
                 }
-                sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ it.m_id ].data ) );
+                sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ a.value ].data ) );
             }
         }
 
