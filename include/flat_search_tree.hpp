@@ -257,7 +257,7 @@ class SearchTree {
     using Node = detail::Node<NodeData>;
     using Nodes = tagged_vector<Node>;
     using Transition = Transition<SearchTree>;
-    using OptTransition = OptTransition<SearchTree>;
+    using OptionalTransition = OptionalTransition<SearchTree>;
     using Path = Path<SearchTree>;
     using Visited = std::vector<NodeID>; // New m_nodes by old_index.
     using Stack = std::vector<NodeID>;
@@ -300,6 +300,390 @@ class SearchTree {
         m_nodes.emplace_back ( std::forward<Args> ( args_ ) ... );
         return id;
     }
+
+
+    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
+        return { arc_, m_arcs [ arc_.value ].target };
+    }
+    [[ nodiscard ]] OptionalTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
+        for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
+            if ( source_ == it->source ) {
+                return { it.id ( ), target_ };
+            }
+        }
+        return { };
+    }
+    template<typename It>
+    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
+        return { it_.id ( ), it_->target };
+    }
+
+
+    [[ nodiscard ]] const bool isLeaf ( const NodeID node_ ) const noexcept {
+        return not ( m_nodes [ node_.value ].out_size );
+    }
+    [[ nodiscard ]] const bool isInternal ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].out_size;
+    }
+
+    [[ nodiscard ]] const Int inArcNum ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].in_size;
+    }
+    [[ nodiscard ]] const Int outArcNum ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].out_size;
+    }
+
+    [[ nodiscard ]] const bool hasInArc ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].in_size;
+    }
+    [[ nodiscard ]] const bool hasOutArc ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].out_size;
+    }
+
+
+    [[ nodiscard ]] in_iterator beginIn ( const NodeID node_ ) noexcept {
+        return in_iterator { *this, node_ };
+    }
+    [[ nodiscard ]] const_in_iterator beginIn ( const NodeID node_ ) const noexcept {
+        return const_in_iterator { *this, node_ };
+    }
+    [[ nodiscard ]] const_in_iterator cbeginIn ( const NodeID node_ ) const noexcept {
+        return const_in_iterator { *this, node_ };
+    }
+
+    [[ nodiscard ]] out_iterator beginOut ( const NodeID node_ ) noexcept {
+        return out_iterator { *this, node_ };
+    }
+    [[ nodiscard ]] const_out_iterator beginOut ( const NodeID node_ ) const noexcept {
+        return const_out_iterator { *this, node_ };
+    }
+    [[ nodiscard ]] const_out_iterator cbeginOut ( const NodeID node_ ) const noexcept {
+        return const_out_iterator { *this, node_ };
+    }
+
+
+    [[ nodiscard ]] ArcData & data ( const ArcID arc_ ) noexcept {
+        return m_arcs [ arc_.value ].data;
+    }
+    [[ nodiscard ]] const ArcData & data ( const ArcID arc_ ) const noexcept {
+        return m_arcs [ arc_.value ].data;
+    }
+    [[ nodiscard ]] NodeData & data ( const NodeID node_ ) noexcept {
+        return m_nodes [ node_.value ].data;
+    }
+    [[ nodiscard ]] const NodeData & data ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ].data;
+    }
+
+
+    [[ nodiscard ]] Arc & operator [ ] ( const ArcID arc_ ) noexcept {
+        return m_arcs [ arc_.value ];
+    }
+    [[ nodiscard ]] const Arc & operator [ ] ( const ArcID arc_ ) const noexcept {
+        return m_arcs [ arc_.value ];
+    }
+    [[ nodiscard ]] Node & operator [ ] ( const NodeID node_ ) noexcept {
+        return m_nodes [ node_.value ];
+    }
+    [[ nodiscard ]] const Node & operator [ ] ( const NodeID node_ ) const noexcept {
+        return m_nodes [ node_.value ];
+    }
+
+
+    [[ nodiscard ]] const Int arcNum ( ) const noexcept {
+        return static_cast<Int> ( m_arcs.size ( ) ) - 2;
+    }
+    [[ nodiscard ]] const Int nodeNum ( ) const noexcept {
+        return static_cast<Int> ( m_nodes.size ( ) ) - 1;
+    }
+
+
+    // Destructively construct a sub-tree out of the current tree [Depth First].
+    [[ nodiscard ]] SearchTree makeSubTree ( const NodeID root_node_to_be_ ) {
+        assert ( NodeID::invalid != root_node_to_be_ );
+        assert ( root_node != root_node_to_be_ );
+        SearchTree sub_tree { std::move ( m_nodes [ root_node_to_be_.value ].data ) };
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        static Visited visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), NodeID::invalid );
+        visited [ root_node_to_be_.value ] = sub_tree.root_node;
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( root_node_to_be_ );
+        while ( stack.size ( ) ) {
+            const NodeID parent = stack.back ( ); stack.pop_back ( );
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
+                if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
+                    visited [ child.value ] = sub_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
+                    stack.push_back ( child );
+                }
+                sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ a.value ].data ) );
+            }
+        }
+        return sub_tree;
+    }
+
+
+    void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+        assert ( NodeID::invalid != root_node_to_be_ );
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        static std::vector<bool> visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), false );
+        visited [ root_node_to_be_.value ] = true;
+        static Queue queue;
+        queue.clear ( );
+        queue.push_back ( root_node_to_be_ );
+        while ( queue.size ( ) ) {
+            const NodeID parent = queue.front ( ); queue.pop_front ( );
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
+                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
+                    visited [ child.value ] = true;
+                    queue.push_back ( child );
+
+                    // All nodes traversed once here.
+
+                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+                }
+
+                // All arcs traversed once here [nodes are traversed (possibly) several times].
+            }
+        }
+    }
+
+    void traverseDepthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
+        assert ( NodeID::invalid != root_node_to_be_ );
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        static std::vector<bool> visited;
+        visited.clear ( );
+        visited.resize ( m_nodes.size ( ), false );
+        visited [ root_node_to_be_.value ] = true;
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( root_node_to_be_ );
+        while ( stack.size ( ) ) {
+            const NodeID parent = stack.back ( ); stack.pop_back ( );
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+                const NodeID child { m_arcs [ a.value ].target };
+                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
+                    visited [ child.value ] = true;
+                    stack.push_back ( child );
+                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+                }
+                // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+            }
+        }
+    }
+
+
+    // Topological sorting, using Kahn's alogorithm (does not traverse all arcs).
+    [[ nodiscard ]] std::vector<NodeID> topologicalSort ( ) const noexcept {
+        std::vector<NodeID> sorted;
+        static std::vector<bool> removed_arcs;
+        removed_arcs.clear ( );
+        removed_arcs.resize ( m_arcs.size ( ), false );
+        static Stack stack;
+        stack.clear ( );
+        stack.push_back ( root_node );
+        while ( stack.size ( ) ) {
+            sorted.push_back ( stack.back ( ) ); stack.pop_back ( );
+            for ( ArcID out = m_nodes [ sorted.back ( ).value ].head_out; ArcID::invalid != out; out = m_arcs [ out.value ].next_out ) {
+                removed_arcs [ out.value ] = true;
+                bool has_no_in_arcs = true;
+                for ( ArcID in = m_nodes [ m_arcs [ out.value ].target.value ].head_in; ArcID::invalid != in; in = m_arcs [ in.value ].next_in ) {
+                    if ( not ( removed_arcs [ in.value ] ) ) {
+                        has_no_in_arcs = false;
+                        break;
+                    }
+                }
+                if ( has_no_in_arcs ) {
+                    stack.push_back ( m_arcs [ out.value ].target );
+                }
+            }
+        }
+        return sorted;
+    }
+
+    // Data members.
+
+    ArcID root_arc;
+    NodeID root_node;
+
+    private:
+
+    Arcs m_arcs;
+    Nodes m_nodes;
+
+    public:
+
+    // Iterators all the way down. An iterator iterates over arcs
+    // in general, with the exception of those annoted with 'node'.
+
+    class node_iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
+        typename Nodes::pointer m_ptr, m_end;
+
+        public:
+
+        using difference_type = typename Nodes::difference_type;
+        using value_type = typename Nodes::value_type;
+        using reference = typename Nodes::reference;
+        using pointer = typename Nodes::pointer;
+        using const_reference = typename Nodes::const_reference;
+        using const_pointer = typename Nodes::const_pointer;
+        using iterator_category = std::forward_iterator_tag;
+
+        node_iterator ( SearchTree & tree_ ) noexcept :
+            m_ptr { tree_.m_nodes.data ( ) },
+            m_end { m_ptr + tree_.m_nodes.size ( ) } {
+        }
+
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
+            return m_end != m_ptr;
+        }
+
+        [[ maybe_unused ]] node_iterator & operator ++ ( ) noexcept {
+            ++m_ptr;
+            return *this;
+        }
+
+        [[ nodiscard ]] reference operator * ( ) const noexcept {
+            return *m_ptr;
+        }
+
+        [[ nodiscard ]] pointer operator -> ( ) const noexcept {
+            return m_ptr;
+        }
+    };
+
+    class const_node_iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
+        typename Nodes::pointer m_ptr, m_end;
+
+        public:
+
+        using difference_type = typename Nodes::difference_type;
+        using value_type = typename Nodes::value_type;
+        using reference = typename Nodes::reference;
+        using pointer = typename Nodes::pointer;
+        using const_reference = typename Nodes::const_reference;
+        using const_pointer = typename Nodes::const_pointer;
+        using iterator_category = std::forward_iterator_tag;
+
+        const_node_iterator ( const SearchTree & tree_ ) noexcept :
+            m_ptr { tree_.m_nodes.data ( ) },
+            m_end { m_ptr + tree_.m_nodes.size ( ) } {
+        }
+
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
+            return m_end != m_ptr;
+        }
+
+        [[ maybe_unused ]] const_node_iterator & operator ++ ( ) noexcept {
+            ++m_ptr;
+            return *this;
+        }
+
+        [[ nodiscard ]] const_reference operator * ( ) const noexcept {
+            return *m_ptr;
+        }
+
+        [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
+            return m_ptr;
+        }
+    };
+
+    class iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
+        typename Arcs::pointer m_ptr, m_end;
+
+        public:
+
+        using difference_type = typename Arcs::difference_type;
+        using value_type = typename Arcs::value_type;
+        using reference = typename Arcs::reference;
+        using pointer = typename Arcs::pointer;
+        using const_reference = typename Arcs::const_reference;
+        using const_pointer = typename Arcs::const_pointer;
+        using iterator_category = std::forward_iterator_tag;
+
+        iterator ( SearchTree & tree_ ) noexcept :
+            m_ptr { tree_.m_arcs.data ( ) },
+            m_end { m_ptr + tree_.m_arcs.size ( ) } {
+        }
+
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
+            return m_end != m_ptr;
+        }
+
+        [[ maybe_unused ]] iterator & operator ++ ( ) noexcept {
+            ++m_ptr;
+            return *this;
+        }
+
+        [[ nodiscard ]] reference operator * ( ) const noexcept {
+            return *m_ptr;
+        }
+
+        [[ nodiscard ]] pointer operator -> ( ) const noexcept {
+            return m_ptr;
+        }
+    };
+
+    class const_iterator {
+
+        template<typename ArcData, typename NodeData>
+        friend class SearchTree;
+
+        typename Arcs::pointer m_ptr, m_end;
+
+        public:
+
+        using difference_type = typename Arcs::difference_type;
+        using value_type = typename Arcs::value_type;
+        using reference = typename Arcs::reference;
+        using pointer = typename Arcs::pointer;
+        using const_reference = typename Arcs::const_reference;
+        using const_pointer = typename Arcs::const_pointer;
+        using iterator_category = std::forward_iterator_tag;
+
+        const_iterator ( const SearchTree & tree_ ) noexcept :
+            m_ptr { tree_.m_arcs.data ( ) },
+            m_end { m_ptr + tree_.m_arcs.size ( ) } {
+        }
+
+        [[ nodiscard ]] const bool is_valid ( ) const noexcept {
+            return m_end != m_ptr;
+        }
+
+        [[ maybe_unused ]] const_iterator & operator ++ ( ) noexcept {
+            ++m_ptr;
+            return *this;
+        }
+
+        [[ nodiscard ]] const_reference operator * ( ) const noexcept {
+            return *m_ptr;
+        }
+
+        [[ nodiscard ]] const_pointer operator -> ( ) const noexcept {
+            return m_ptr;
+        }
+    };
 
     class in_iterator {
 
@@ -480,220 +864,6 @@ class SearchTree {
             return m_id;
         }
     };
-
-    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
-        return { arc_, m_arcs [ arc_.value ].target };
-    }
-    [[ nodiscard ]] OptTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
-        for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
-            if ( source_ == it->source ) {
-                return { it.id ( ), target_ };
-            }
-        }
-        return { };
-    }
-    template<typename It>
-    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
-        return { it_.id ( ), it_->target };
-    }
-
-    [[ nodiscard ]] const bool isLeaf ( const NodeID node_ ) const noexcept {
-        return not ( m_nodes [ node_.value ].out_size );
-    }
-    [[ nodiscard ]] const bool isInternal ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].out_size;
-    }
-
-    [[ nodiscard ]] const Int inArcNum ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].in_size;
-    }
-    [[ nodiscard ]] const Int outArcNum ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].out_size;
-    }
-
-    [[ nodiscard ]] const bool hasInArc ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].in_size;
-    }
-    [[ nodiscard ]] const bool hasOutArc ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].out_size;
-    }
-
-
-    [[ nodiscard ]] in_iterator beginIn ( const NodeID node_ ) noexcept {
-        return in_iterator { *this, node_ };
-    }
-    [[ nodiscard ]] const_in_iterator beginIn ( const NodeID node_ ) const noexcept {
-        return const_in_iterator { *this, node_ };
-    }
-    [[ nodiscard ]] const_in_iterator cbeginIn ( const NodeID node_ ) const noexcept {
-        return const_in_iterator { *this, node_ };
-    }
-
-    [[ nodiscard ]] out_iterator beginOut ( const NodeID node_ ) noexcept {
-        return out_iterator { *this, node_ };
-    }
-    [[ nodiscard ]] const_out_iterator beginOut ( const NodeID node_ ) const noexcept {
-        return const_out_iterator { *this, node_ };
-    }
-    [[ nodiscard ]] const_out_iterator cbeginOut ( const NodeID node_ ) const noexcept {
-        return const_out_iterator { *this, node_ };
-    }
-
-
-    [[ nodiscard ]] ArcData & data ( const ArcID arc_ ) noexcept {
-        return m_arcs [ arc_.value ].data;
-    }
-    [[ nodiscard ]] const ArcData & data ( const ArcID arc_ ) const noexcept {
-        return m_arcs [ arc_.value ].data;
-    }
-    [[ nodiscard ]] NodeData & data ( const NodeID node_ ) noexcept {
-        return m_nodes [ node_.value ].data;
-    }
-    [[ nodiscard ]] const NodeData & data ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ].data;
-    }
-
-
-    [[ nodiscard ]] Arc & operator [ ] ( const ArcID arc_ ) noexcept {
-        return m_arcs [ arc_.value ];
-    }
-    [[ nodiscard ]] const Arc & operator [ ] ( const ArcID arc_ ) const noexcept {
-        return m_arcs [ arc_.value ];
-    }
-    [[ nodiscard ]] Node & operator [ ] ( const NodeID node_ ) noexcept {
-        return m_nodes [ node_.value ];
-    }
-    [[ nodiscard ]] const Node & operator [ ] ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ];
-    }
-
-
-    [[ nodiscard ]] const Int arcNum ( ) const noexcept {
-        return static_cast<Int> ( m_arcs.size ( ) ) - 2;
-    }
-    [[ nodiscard ]] const Int nodeNum ( ) const noexcept {
-        return static_cast<Int> ( m_nodes.size ( ) ) - 1;
-    }
-
-
-    // Destructively construct a sub-tree out of the current tree [Depth First].
-    [[ nodiscard ]] SearchTree makeSubTree ( const NodeID root_node_to_be_ ) {
-        assert ( NodeID::invalid != root_node_to_be_ );
-        assert ( root_node != root_node_to_be_ );
-        SearchTree sub_tree { std::move ( m_nodes [ root_node_to_be_.value ].data ) };
-        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
-        static Visited visited;
-        visited.clear ( );
-        visited.resize ( m_nodes.size ( ), NodeID::invalid );
-        visited [ root_node_to_be_.value ] = sub_tree.root_node;
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node_to_be_ );
-        while ( stack.size ( ) ) {
-            const NodeID parent = stack.back ( ); stack.pop_back ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
-                const NodeID child { m_arcs [ a.value ].target };
-                if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
-                    visited [ child.value ] = sub_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
-                    stack.push_back ( child );
-                }
-                sub_tree.addArc ( visited [ parent.value ], visited [ child.value ], std::move ( m_arcs [ a.value ].data ) );
-            }
-        }
-        return sub_tree;
-    }
-
-
-    void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
-        assert ( NodeID::invalid != root_node_to_be_ );
-        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
-        static std::vector<bool> visited;
-        visited.clear ( );
-        visited.resize ( m_nodes.size ( ), false );
-        visited [ root_node_to_be_.value ] = true;
-        static Queue queue;
-        queue.clear ( );
-        queue.push_back ( root_node_to_be_ );
-        while ( queue.size ( ) ) {
-            const NodeID parent = queue.front ( ); queue.pop_front ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
-                const NodeID child { m_arcs [ a.value ].target };
-                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
-                    visited [ child.value ] = true;
-                    queue.push_back ( child );
-
-                    // All nodes traversed once here.
-
-                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
-                }
-
-                // All arcs traversed once here [nodes are traversed (possibly) several times].
-            }
-        }
-    }
-
-    void traverseDepthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
-        assert ( NodeID::invalid != root_node_to_be_ );
-        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
-        static std::vector<bool> visited;
-        visited.clear ( );
-        visited.resize ( m_nodes.size ( ), false );
-        visited [ root_node_to_be_.value ] = true;
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node_to_be_ );
-        while ( stack.size ( ) ) {
-            const NodeID parent = stack.back ( ); stack.pop_back ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
-                const NodeID child { m_arcs [ a.value ].target };
-                if ( not ( visited [ child.value ] ) ) { // Not visited yet.
-                    visited [ child.value ] = true;
-                    stack.push_back ( child );
-                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
-                }
-                // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
-            }
-        }
-    }
-
-    // Topological sorting, using Kahn's alogorithm (does not traverse all arcs).
-    [[ nodiscard ]] std::vector<NodeID> topologicalSort ( ) const noexcept {
-        std::vector<NodeID> sorted;
-        static std::vector<bool> removed_arcs;
-        removed_arcs.clear ( );
-        removed_arcs.resize ( m_arcs.size ( ), false );
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node );
-        while ( stack.size ( ) ) {
-            sorted.push_back ( stack.back ( ) ); stack.pop_back ( );
-            for ( ArcID out = m_nodes [ sorted.back ( ).value ].head_out; ArcID::invalid != out; out = m_arcs [ out.value ].next_out ) {
-                removed_arcs [ out.value ] = true;
-                bool has_no_in_arcs = true;
-                for ( ArcID in = m_nodes [ m_arcs [ out.value ].target.value ].head_in; ArcID::invalid != in; in = m_arcs [ in.value ].next_in ) {
-                    if ( not ( removed_arcs [ in.value ] ) ) {
-                        has_no_in_arcs = false;
-                        break;
-                    }
-                }
-                if ( has_no_in_arcs ) {
-                    stack.push_back ( m_arcs [ out.value ].target );
-                }
-            }
-        }
-        return sorted;
-    }
-
-    ArcID root_arc;
-    NodeID root_node;
-
-    private:
-
-    Arcs m_arcs;
-    Nodes m_nodes;
 };
 
 }

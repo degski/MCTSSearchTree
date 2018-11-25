@@ -69,7 +69,7 @@ class SearchTree {
     using const_out_iterator = typename OutList::const_iterator;
 
     using Transition = Transition<SearchTree>;
-    using OptTransition = OptTransition<SearchTree>;
+    using OptionalTransition = OptionalTransition<SearchTree>;
     using Path = Path<SearchTree>;
 
     struct Arc {
@@ -175,7 +175,7 @@ class SearchTree {
     [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
         return { arc_, arc_->target };
     }
-    [[ nodiscard ]] OptTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptionalTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const ArcID arc : inArcs ( target_ ) ) {
             if ( source_ == arc->source ) {
                 return { arc, target_ };

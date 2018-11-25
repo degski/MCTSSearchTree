@@ -97,4 +97,4 @@ struct Transition {
 };
 
 template<typename Tree>
-using OptTransition = std::optional<Transition<Tree>>;
+using OptionalTransition = std::optional<Transition<Tree>>;
