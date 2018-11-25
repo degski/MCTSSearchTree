@@ -63,21 +63,6 @@
 
 Singleton<splitmix64> rng;
 
-int random_int ( ) noexcept {
-    return ext::uniform_int_distribution_fast<int> ( ) ( rng.instance ( ) );
-}
-
-
-template<typename Data>
-void print_arc_data ( Data & d_ ) {
-    std::wcout << L"arc " << d_ << nl;
-}
-
-template<typename Data>
-void print_node_data ( Data & d_ ) {
-    std::wcout << L"node " << d_ << nl;
-}
-
 
 int wmain ( ) {
 
@@ -136,7 +121,7 @@ int wmain ( ) {
 
     std::wcout << s.arcNum ( ) << L" - " << s.nodeNum ( ) << nl << nl;
 
-    t.traverseBreadthFirst ( Node { 1 }, std::function<void(int&)> { print_arc_data<int> }, std::function<void ( int& )> { print_node_data<int> } );
+    t.traverseBreadthFirst ( );
 
     std::wcout << nl << nl;
 
@@ -144,7 +129,12 @@ int wmain ( ) {
 
     std::wcout << nl << nl;
 
-    t.topologicalSort ( );
+    const auto sorted { t.topologicalSort ( ) };
+
+    for ( auto v : sorted ) {
+        std::wcout << v << L' ';
+    }
+    std::wcout << L'\n';
 
     std::wcout << nl << nl;
 

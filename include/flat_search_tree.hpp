@@ -605,7 +605,7 @@ class SearchTree {
     }
 
 
-    void traverseBreadthFirst ( const NodeID root_node_to_be_, std::function<void ( ArcData & )> fa_, std::function<void ( NodeData & )> fn_ ) { // Default is to walk the whole tree.
+    void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
         assert ( NodeID::invalid != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid.
@@ -616,9 +616,6 @@ class SearchTree {
         static Queue queue;
         queue.clear ( );
         queue.push_back ( root_node_to_be_ );
-
-        fn_ ( m_nodes [ root_node_to_be_.value ].data );
-
         while ( queue.size ( ) ) {
             const NodeID parent = queue.front ( ); queue.pop_front ( );
             for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
@@ -629,12 +626,10 @@ class SearchTree {
 
                     // All nodes traversed once here.
 
-                    fn_ ( m_nodes [ child.value ].data );
+                    std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
                 }
 
                 // All arcs traversed once here [nodes are traversed (possibly) several times].
-
-                fa_ ( m_arcs [ a.value ].data );
             }
         }
     }
@@ -665,7 +660,7 @@ class SearchTree {
     }
 
     // Topological sorting, using Kahn's alogorithm (does not traverse all arcs).
-    std::vector<NodeID> topologicalSort ( ) const noexcept {
+    [[ nodiscard ]] std::vector<NodeID> topologicalSort ( ) const noexcept {
         std::vector<NodeID> sorted;
         static std::vector<bool> removed_arcs;
         removed_arcs.clear ( );
