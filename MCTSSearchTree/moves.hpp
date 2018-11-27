@@ -120,7 +120,7 @@ class Moves {
 
     [[ maybe_unused ]] Moves & operator = ( const Moves & rhs_ ) noexcept {
         std::memcpy ( this, & rhs_, sizeof ( Moves ) );
-        return *this;
+        return * this;
     }
 
     void remove ( const value_type m_ ) noexcept {

@@ -100,7 +100,7 @@ namespace pa {
                 m_free_slots = chunk_pool_.freeSlots;
             }
 
-            return *this;
+            return * this;
         }
 
 
