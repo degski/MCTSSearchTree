@@ -648,7 +648,7 @@ class SearchTree {
     [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
             if ( source_ == it->source ) {
-                return Link { it.id ( ), target_ };
+                return { { it.id ( ), target_ } };
             }
         }
         return { };
