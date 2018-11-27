@@ -257,7 +257,7 @@ class SearchTree {
     using Node = detail::Node<NodeData>;
     using Nodes = tagged_vector<Node>;
     using Link = Link<SearchTree>;
-    using OptionalTransition = OptionalTransition<SearchTree>;
+    using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
     using Visited = std::vector<NodeID>; // New m_nodes by old_index.
     using Stack = std::vector<NodeID>;
@@ -645,10 +645,10 @@ class SearchTree {
     [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
         return { arc_, m_arcs [ arc_.value ].target };
     }
-    [[ nodiscard ]] OptionalTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
+    [[ nodiscard ]] OptionalLink link ( const NodeID source_, const NodeID target_ ) const noexcept {
         for ( const_in_iterator it = cbeginIn ( target_ ); it.is_valid ( ); ++it ) {
             if ( source_ == it->source ) {
-                return { it.id ( ), target_ };
+                return Link { it.id ( ), target_ };
             }
         }
         return { };

@@ -38,6 +38,12 @@
 
 
 template<typename Tree>
+struct Link;
+
+template<typename Tree>
+using OptionalLink = std::optional<Link<Tree>>;
+
+template<typename Tree>
 struct Link {
 
     using ArcID = typename Tree::ArcID;
@@ -95,6 +101,3 @@ struct Link {
         ar_ ( arc, target );
     }
 };
-
-template<typename Tree>
-using OptionalTransition = std::optional<Link<Tree>>;

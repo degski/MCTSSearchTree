@@ -29,6 +29,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <optional>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -48,6 +49,7 @@ class Path {
     using NodeID = typename Tree::NodeID;
 
     using Link = Link<Tree>;
+    using OptionalLink = OptionalLink<Tree>;
     using iterator = typename tagged_vector<Link>::iterator;
     using const_iterator = typename tagged_vector<Link>::const_iterator;
     using reference = typename tagged_vector<Link>::reference;
@@ -80,6 +82,11 @@ class Path {
     }
     void push ( const Link & l_ ) noexcept {
         m_path.push_back ( l_ );
+    }
+    void push ( const OptionalLink & l_ ) noexcept {
+        if ( l_.has_value ( ) ) {
+            m_path.push_back ( l_.value ( ) );
+        }
     }
     void push ( const ArcID a_, const NodeID t_ ) noexcept {
         m_path.emplace_back ( a_, t_ );
