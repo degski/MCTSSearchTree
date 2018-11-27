@@ -715,12 +715,26 @@ class SearchTree {
         return m_nodes [ node_.value ].data;
     }
 
-
+    // The number of valid arcs. This is not the same as the size of
+    // the arcs-vector, which allows for some additional admin elements,
+    // use arcsSize ( ) instead.
     [[ nodiscard ]] const Int arcNum ( ) const noexcept {
         return static_cast<Int> ( m_arcs.size ( ) ) - 2;
     }
+    // The number of valid nodes. This is not the same as the size of
+    // the arcs-vector, which allows for some additional admin elements,
+    // use nodesSize ( ) instead.
     [[ nodiscard ]] const Int nodeNum ( ) const noexcept {
         return static_cast<Int> ( m_nodes.size ( ) ) - 1;
+    }
+
+    // The size of the arcs-vector (allows for some admin elements).
+    [[ nodiscard ]] const std::size_t arcsSize ( ) const noexcept {
+        return m_arcs.size ( );
+    }
+    // The size of the nodes-vector (allows for some admin elements).
+    [[ nodiscard ]] const std::size_t nodesSize ( ) const noexcept {
+        return m_nodes.size ( );
     }
 
 
