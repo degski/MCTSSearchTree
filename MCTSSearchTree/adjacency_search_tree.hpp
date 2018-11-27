@@ -40,7 +40,7 @@
 
 #include "pool_allocator.hpp"
 #include "types.hpp"
-#include "transition.hpp"
+#include "link.hpp"
 #include "path.hpp"
 
 
@@ -68,7 +68,7 @@ class SearchTree {
     using out_iterator = typename OutList::iterator;
     using const_out_iterator = typename OutList::const_iterator;
 
-    using Transition = Transition<SearchTree>;
+    using Link = Link<SearchTree>;
     using OptionalTransition = OptionalTransition<SearchTree>;
     using Path = Path<SearchTree>;
 
@@ -172,7 +172,7 @@ class SearchTree {
         m_nodes.delete_element ( node_ );
     }
 
-    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
         return { arc_, arc_->target };
     }
     [[ nodiscard ]] OptionalTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
@@ -184,7 +184,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
         return { *it_, it_->target };
     }
 

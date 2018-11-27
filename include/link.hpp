@@ -38,7 +38,7 @@
 
 
 template<typename Tree>
-struct Transition {
+struct Link {
 
     using ArcID = typename Tree::ArcID;
     using NodeID = typename Tree::NodeID;
@@ -46,42 +46,42 @@ struct Transition {
     ArcID arc;
     NodeID target;
 
-    Transition ( ) noexcept {
+    Link ( ) noexcept {
     }
-    Transition ( Transition && l_ ) noexcept :
+    Link ( Link && l_ ) noexcept :
         arc { std::move ( l_.arc ) },
         target { std::move ( l_.target ) } {
     }
-    Transition ( const Transition & l_ ) noexcept :
+    Link ( const Link & l_ ) noexcept :
         arc { l_.arc },
         target { l_.target } {
     }
-    Transition ( const ArcID a_, const NodeID t_ ) noexcept :
+    Link ( const ArcID a_, const NodeID t_ ) noexcept :
         arc { a_ },
         target { t_ } {
     }
-    Transition ( const ArcID a_ ) noexcept :
+    Link ( const ArcID a_ ) noexcept :
         arc { a_ } {
     }
-    Transition ( const NodeID t_ ) noexcept :
+    Link ( const NodeID t_ ) noexcept :
         target { t_ } {
     }
 
-    [[ nodiscard ]] bool operator == ( const Transition & rhs_ ) const noexcept {
+    [[ nodiscard ]] bool operator == ( const Link & rhs_ ) const noexcept {
         return arc == rhs_.arc and target == rhs_.target;
     }
-    [[ nodiscard ]] bool operator != ( const Transition & rhs_ ) const noexcept {
+    [[ nodiscard ]] bool operator != ( const Link & rhs_ ) const noexcept {
         return arc != rhs_.arc or target != rhs_.target;
     }
 
-    [[ maybe_unused ]] Transition & operator = ( const Transition & l_ ) noexcept {
+    [[ maybe_unused ]] Link & operator = ( const Link & l_ ) noexcept {
         arc = l_.arc;
         target = l_.target;
         return * this;
     }
 
     template<typename Stream>
-    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Transition & l_ ) noexcept {
+    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Link & l_ ) noexcept {
         out_ << L'<' << l_.arc << L' ' << l_.target << L'>';
         return out_;
     }
@@ -97,4 +97,4 @@ struct Transition {
 };
 
 template<typename Tree>
-using OptionalTransition = std::optional<Transition<Tree>>;
+using OptionalTransition = std::optional<Link<Tree>>;

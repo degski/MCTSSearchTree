@@ -52,7 +52,7 @@
 #include "singleton.hpp"
 #include "flat_search_tree.hpp"
 #include "adjacency_search_tree.hpp"
-#include "transition.hpp"
+#include "link.hpp"
 #include "path.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"

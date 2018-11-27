@@ -216,7 +216,7 @@
     <ClInclude Include="..\include\flat_search_tree.hpp" />
     <ClInclude Include="..\include\path.hpp" />
     <ClInclude Include="..\include\singleton.hpp" />
-    <ClInclude Include="..\include\transition.hpp" />
+    <ClInclude Include="..\include\link.hpp" />
     <ClInclude Include="..\include\types.hpp" />
     <ClInclude Include="adjacency_search_tree.hpp" />
     <ClInclude Include="mcts_emu.hpp" />

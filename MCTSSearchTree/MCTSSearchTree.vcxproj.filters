@@ -47,10 +47,10 @@
     <ClInclude Include="..\include\singleton.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\transition.hpp">
+    <ClInclude Include="..\include\types.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\types.hpp">
+    <ClInclude Include="..\include\link.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>
   </ItemGroup>

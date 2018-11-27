@@ -36,7 +36,7 @@
 #include <cereal/types/pector.hpp>
 
 #include "types.hpp"
-#include "transition.hpp"
+#include "link.hpp"
 
 
 template<typename Tree>
@@ -47,26 +47,26 @@ class Path {
     using ArcID = typename Tree::ArcID;
     using NodeID = typename Tree::NodeID;
 
-    using Transition = Transition<Tree>;
-    using iterator = typename tagged_vector<Transition>::iterator;
-    using const_iterator = typename tagged_vector<Transition>::const_iterator;
-    using reference = typename tagged_vector<Transition>::reference;
-    using const_reference = typename tagged_vector<Transition>::const_reference;
+    using Link = Link<Tree>;
+    using iterator = typename tagged_vector<Link>::iterator;
+    using const_iterator = typename tagged_vector<Link>::const_iterator;
+    using reference = typename tagged_vector<Link>::reference;
+    using const_reference = typename tagged_vector<Link>::const_reference;
 
     struct path_tag { };
 
-    tagged_vector<Transition, std::allocator<Transition>, path_tag> m_path;
+    tagged_vector<Link, std::allocator<Link>, path_tag> m_path;
 
     public:
 
     Path ( ) noexcept :
         m_path { } {
     }
-    Path ( const Transition & l_ ) noexcept :
+    Path ( const Link & l_ ) noexcept :
         m_path { 1u, l_ } {
     }
     Path ( const ArcID a_, const NodeID t_ ) noexcept :
-        m_path { 1u, Transition { a_, t_ } } {
+        m_path { 1u, Link { a_, t_ } } {
     }
 
     void reset ( const ArcID a_, const NodeID t_ ) noexcept {
@@ -75,17 +75,17 @@ class Path {
         m_path [ 0u ].target = t_;
     }
 
-    void emplace ( Transition && l_ ) noexcept {
+    void emplace ( Link && l_ ) noexcept {
         m_path.emplace_back ( std::move ( l_ ) );
     }
-    void push ( const Transition & l_ ) noexcept {
+    void push ( const Link & l_ ) noexcept {
         m_path.push_back ( l_ );
     }
     void push ( const ArcID a_, const NodeID t_ ) noexcept {
         m_path.emplace_back ( a_, t_ );
     }
-    [[ maybe_unused ]] Transition pop ( ) noexcept {
-        const Transition r { m_path.back ( ) };
+    [[ maybe_unused ]] Link pop ( ) noexcept {
+        const Link r { m_path.back ( ) };
         m_path.pop_back ( );
         return r;
     }

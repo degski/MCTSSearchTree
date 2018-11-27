@@ -41,7 +41,7 @@
 #include <cereal/types/vector.hpp>
 
 #include "types.hpp"
-#include "transition.hpp"
+#include "link.hpp"
 #include "path.hpp"
 
 
@@ -256,7 +256,7 @@ class SearchTree {
     using Arcs = tagged_vector<Arc>;
     using Node = detail::Node<NodeData>;
     using Nodes = tagged_vector<Node>;
-    using Transition = Transition<SearchTree>;
+    using Link = Link<SearchTree>;
     using OptionalTransition = OptionalTransition<SearchTree>;
     using Path = Path<SearchTree>;
     using Visited = std::vector<NodeID>; // New m_nodes by old_index.
@@ -642,7 +642,7 @@ class SearchTree {
     };
 
 
-    [[ nodiscard ]] Transition link ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const ArcID arc_ ) const noexcept {
         return { arc_, m_arcs [ arc_.value ].target };
     }
     [[ nodiscard ]] OptionalTransition link ( const NodeID source_, const NodeID target_ ) const noexcept {
@@ -654,7 +654,7 @@ class SearchTree {
         return { };
     }
     template<typename It>
-    [[ nodiscard ]] Transition link ( const It & it_ ) const noexcept {
+    [[ nodiscard ]] Link link ( const It & it_ ) const noexcept {
         return { it_.id ( ), it_->target };
     }
 
@@ -702,31 +702,17 @@ class SearchTree {
     }
 
 
-    [[ nodiscard ]] ArcData & data ( const ArcID arc_ ) noexcept {
+    [[ nodiscard ]] ArcData &  operator [ ] ( const ArcID arc_ ) noexcept {
         return m_arcs [ arc_.value ].data;
     }
-    [[ nodiscard ]] const ArcData & data ( const ArcID arc_ ) const noexcept {
+    [[ nodiscard ]] const ArcData &  operator [ ] ( const ArcID arc_ ) const noexcept {
         return m_arcs [ arc_.value ].data;
     }
-    [[ nodiscard ]] NodeData & data ( const NodeID node_ ) noexcept {
+    [[ nodiscard ]] NodeData & operator [ ] ( const NodeID node_ ) noexcept {
         return m_nodes [ node_.value ].data;
     }
-    [[ nodiscard ]] const NodeData & data ( const NodeID node_ ) const noexcept {
+    [[ nodiscard ]] const NodeData & operator [ ] ( const NodeID node_ ) const noexcept {
         return m_nodes [ node_.value ].data;
-    }
-
-
-    [[ nodiscard ]] Arc & operator [ ] ( const ArcID arc_ ) noexcept {
-        return m_arcs [ arc_.value ];
-    }
-    [[ nodiscard ]] const Arc & operator [ ] ( const ArcID arc_ ) const noexcept {
-        return m_arcs [ arc_.value ];
-    }
-    [[ nodiscard ]] Node & operator [ ] ( const NodeID node_ ) noexcept {
-        return m_nodes [ node_.value ];
-    }
-    [[ nodiscard ]] const Node & operator [ ] ( const NodeID node_ ) const noexcept {
-        return m_nodes [ node_.value ];
     }
 
 

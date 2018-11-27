@@ -70,18 +70,18 @@ using MovesType = Moves<MoveType, 64>;
 template<typename Tree, typename N>
 [[ maybe_unused ]] N addChild ( Tree & tree_, const N source_ ) noexcept {
     const N target = tree_.addNode ( getMoves ( ) );
-    tree_.addArc ( source_, target, tree_.data ( source_ ).take ( ) );
+    tree_.addArc ( source_, target, tree_ [ source_ ].take ( ) );
     return target;
 }
 
 template<typename Tree, typename N>
-void addTransistion ( Tree & tree_, const N source_, const N target_ ) noexcept {
+void addLink ( Tree & tree_, const N source_, const N target_ ) noexcept {
     tree_.addArc ( source_, target_, tree_.data ( source_ ).take ( ) );
 }
 
 template<typename Tree, typename N>
 [[ nodiscard ]] bool hasMoves ( const Tree & tree_, const N source_ ) noexcept {
-    return tree_.data ( source_ ).size ( );
+    return tree_ [ source_ ].size ( );
 }
 
 template<typename Tree, typename N>
