@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include <Windows.h>
+
 #include <cassert>
 #include <climits>
 #include <cstddef>
