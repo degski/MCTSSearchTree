@@ -7,7 +7,7 @@
 // and optimizations added to bounded_rand by Melissa E. O'Neill:
 // http://www.pcg-random.org/posts/bounded-rands.html
 //
-// Copyright (c) 2018 degski
+// Copyright (c) 2018, 2019 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2018 degski
+// Copyright (c) 2018, 2019 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -101,7 +101,7 @@ struct ArcID {
     }
 };
 
-const ArcID ArcID::invalid { };
+// const ArcID ArcID::invalid { };
 
 
 #define NODEID_INVALID_VALUE ( 0 )
@@ -153,7 +153,7 @@ struct NodeID {
     }
 };
 
-const NodeID NodeID::invalid { };
+// const NodeID NodeID::invalid { };
 
 
 template<typename DataType>
