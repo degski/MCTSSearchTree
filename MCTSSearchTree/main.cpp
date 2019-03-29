@@ -49,7 +49,7 @@
 #include <plf/plf_nanotimer.h>
 
 #include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
-#include "singleton.hpp"
+#include <sax/singleton.hpp>
 #include "flat_search_tree.hpp"
 #include "adjacency_search_tree.hpp"
 #include "link.hpp"
@@ -58,7 +58,7 @@
 #include "moves.hpp"
 
 
-Singleton<sax::splitmix64> rng;
+sax::singleton<sax::splitmix64> rng;
 
 
 int main ( ) {
@@ -71,8 +71,8 @@ int main ( ) {
     using Node = typename Tree::NodeID;
     using Arc = typename Tree::ArcID;
 
-    std::wcout << sizeof ( Tree::Arc ) << nl;  //  32
-    std::wcout << sizeof ( Tree::Node ) << nl; // 512
+    std::cout << sizeof ( Tree::Arc ) << nl;  //  32
+    std::cout << sizeof ( Tree::Node ) << nl; // 512
 
     Tree t ( 1 );
 

@@ -35,12 +35,12 @@
 #include <type_traits>
 
 #include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
-#include "uniform_int_distribution_fast.hpp"
-#include "singleton.hpp"
+#include <sax/uniform_int_distribution.hpp>
+#include <sax/singleton.hpp>
 #include "moves.hpp"
 
 
-extern Singleton<sax::splitmix64> rng;
+extern sax::singleton<sax::splitmix64> rng;
 
 
 struct MoveType {
@@ -86,7 +86,7 @@ template<typename Tree, typename N>
 
 template<typename Tree, typename N>
 [[ nodiscard ]] N selectChild ( const Tree & tree_, const N source_ ) noexcept {
-    const std::uint32_t n = ext::uniform_int_distribution_fast<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) );
+    const std::uint32_t n = sax::uniform_int_distribution<std::uint32_t> ( 0, tree_.outArcNum ( source_ ) - 1 ) ( rng.instance ( ) );
     if constexpr ( std::is_pointer<typename Tree::NodeID>::value ) { // ast.
         return tree_.outArcs ( source_ ) [ n ]->target;
     }

@@ -44,9 +44,6 @@
     <ClInclude Include="..\include\path.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\singleton.hpp">
-      <Filter>Header Files\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\types.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>

@@ -35,12 +35,12 @@
 #include <cereal/archives/binary.hpp>
 
 #include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
-#include "uniform_int_distribution_fast.hpp"
+#include <sax/uniform_int_distribution.hpp>
 #include "types.hpp"
-#include "singleton.hpp"
+#include <sax/singleton.hpp>
 
 
-extern Singleton<sax::splitmix64> rng;
+extern sax::singleton<sax::splitmix64> rng;
 
 
 template<typename T, std::size_t S>
@@ -98,7 +98,7 @@ class Moves {
     }
 
     [[ nodiscard ]] value_type random ( ) const noexcept {
-        return m_moves [ ext::uniform_int_distribution_fast<std::ptrdiff_t> ( 0, m_size - 1 ) ( rng.instance ( ) ) ];
+        return m_moves [ sax::uniform_int_distribution<std::ptrdiff_t> ( 0, m_size - 1 ) ( rng.instance ( ) ) ];
     }
 
     [[ nodiscard ]] bool find ( const value_type m_ ) const noexcept {
@@ -112,7 +112,7 @@ class Moves {
 
     // Select a move, remove and return it.
     [[ nodiscard ]] value_type take ( ) noexcept {
-        const Int i { ext::uniform_int_distribution_fast<Int> { 0, --m_size } ( rng.instance ( ) ) };
+        const Int i { sax::uniform_int_distribution<Int> { 0, --m_size } ( rng.instance ( ) ) };
         const value_type v { m_moves [ i ] };
         m_moves [ i ] = m_moves [ m_size ];
         return v;
