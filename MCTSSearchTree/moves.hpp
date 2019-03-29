@@ -34,13 +34,13 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 
-#include "splitmix.hpp"
+#include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
 #include "uniform_int_distribution_fast.hpp"
 #include "types.hpp"
 #include "singleton.hpp"
 
 
-extern Singleton<splitmix64> rng;
+extern Singleton<sax::splitmix64> rng;
 
 
 template<typename T, std::size_t S>

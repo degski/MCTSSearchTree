@@ -29,7 +29,7 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
+#include <sax/iostream.hpp>
 #include <iterator>
 #include <list>
 #include <map>
@@ -48,7 +48,7 @@
 
 #include <plf/plf_nanotimer.h>
 
-#include "splitmix.hpp"
+#include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
 #include "singleton.hpp"
 #include "flat_search_tree.hpp"
 #include "adjacency_search_tree.hpp"
@@ -58,13 +58,10 @@
 #include "moves.hpp"
 
 
-#define nl L'\n'
+Singleton<sax::splitmix64> rng;
 
 
-Singleton<splitmix64> rng;
-
-
-int wmain ( ) {
+int main ( ) {
 
     using namespace fst;
 

@@ -26,7 +26,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <ska_sort.hpp>
+#include <sax/ska_sort.hpp>
 
 
 namespace pa {

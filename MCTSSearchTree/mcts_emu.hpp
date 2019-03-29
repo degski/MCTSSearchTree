@@ -34,13 +34,13 @@
 #include <random>
 #include <type_traits>
 
-#include "splitmix.hpp"
+#include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
 #include "uniform_int_distribution_fast.hpp"
 #include "singleton.hpp"
 #include "moves.hpp"
 
 
-extern Singleton<splitmix64> rng;
+extern Singleton<sax::splitmix64> rng;
 
 
 struct MoveType {

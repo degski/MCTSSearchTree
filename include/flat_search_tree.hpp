@@ -58,7 +58,9 @@ struct ArcID {
 
     Int value;
 
-    static const ArcID invalid;
+    static constexpr ArcID invalid ( ) noexcept {
+        return ArcID { };
+    }
 
     constexpr explicit ArcID ( ) noexcept :
         value { ARCID_INVALID_VALUE } { }
@@ -101,8 +103,6 @@ struct ArcID {
     }
 };
 
-// const ArcID ArcID::invalid { };
-
 
 #define NODEID_INVALID_VALUE ( 0 )
 
@@ -110,7 +110,9 @@ struct NodeID {
 
     Int value;
 
-    static const NodeID invalid;
+    static constexpr NodeID invalid ( ) noexcept {
+        return NodeID { };
+    }
 
     constexpr explicit NodeID ( ) noexcept :
         value { NODEID_INVALID_VALUE } { }
@@ -152,8 +154,6 @@ struct NodeID {
         ar_ ( value );
     }
 };
-
-// const NodeID NodeID::invalid { };
 
 
 template<typename DataType>
@@ -267,7 +267,7 @@ class SearchTree {
     SearchTree ( Args && ... args_ ) :
         root_arc { 1 },
         root_node { 1 },
-        m_arcs { { }, { NodeID::invalid, root_node } },
+        m_arcs { { }, { NodeID::invalid ( ), root_node } },
         m_nodes { { }, { std::forward<Args> ( args_ ) ... } } {
         m_nodes [ root_node.value ].head_in = m_nodes [ root_node.value ].tail_in = root_arc;
         m_nodes [ root_node.value ].in_size = 1, m_nodes [ root_node.value ].out_size = 0;
@@ -277,14 +277,14 @@ class SearchTree {
     [[ maybe_unused ]] ArcID addArc ( const NodeID source_, const NodeID target_, Args && ... args_ ) noexcept {
         const ArcID id { m_arcs.size ( ) };
         m_arcs.emplace_back ( source_, target_, std::forward<Args> ( args_ ) ... );
-        if ( ArcID::invalid == m_nodes [ source_.value ].head_out ) {
+        if ( ArcID::invalid ( ) == m_nodes [ source_.value ].head_out ) {
             m_nodes [ source_.value ].tail_out = m_nodes [ source_.value ].head_out = id;
         }
         else {
             m_nodes [ source_.value ].tail_out = m_arcs [ m_nodes [ source_.value ].tail_out.value ].next_out = id;
         }
         ++m_nodes [ source_.value ].out_size;
-        if ( ArcID::invalid == m_nodes [ target_.value ].head_in ) {
+        if ( ArcID::invalid ( ) == m_nodes [ target_.value ].head_in ) {
             m_nodes [ target_.value ].tail_in = m_nodes [ target_.value ].head_in = id;
         }
         else {
@@ -485,7 +485,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != m_id;
+            return ArcID::invalid ( ) != m_id;
         }
 
         [[ maybe_unused ]] in_iterator & operator ++ ( ) noexcept {
@@ -530,7 +530,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != m_id;
+            return ArcID::invalid ( ) != m_id;
         }
 
         [[ maybe_unused ]] const_in_iterator & operator ++ ( ) noexcept {
@@ -575,7 +575,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != m_id;
+            return ArcID::invalid ( ) != m_id;
         }
 
         [[ maybe_unused ]] out_iterator & operator ++ ( ) noexcept {
@@ -620,7 +620,7 @@ class SearchTree {
         }
 
         [[ nodiscard ]] const bool is_valid ( ) const noexcept {
-            return ArcID::invalid != m_id;
+            return ArcID::invalid ( ) != m_id;
         }
 
         [[ maybe_unused ]] const_out_iterator & operator ++ ( ) noexcept {
@@ -740,23 +740,23 @@ class SearchTree {
 
     // Destructively construct a sub-tree out of the current tree [Depth First].
     [[ nodiscard ]] SearchTree makeSubTree ( const NodeID root_node_to_be_ ) {
-        assert ( NodeID::invalid != root_node_to_be_ );
+        assert ( NodeID::invalid ( ) != root_node_to_be_ );
         assert ( root_node != root_node_to_be_ );
         SearchTree sub_tree { std::move ( m_nodes [ root_node_to_be_.value ].data ) };
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
         static Visited visited;
         visited.clear ( );
-        visited.resize ( m_nodes.size ( ), NodeID::invalid );
+        visited.resize ( m_nodes.size ( ), NodeID::invalid ( ) );
         visited [ root_node_to_be_.value ] = sub_tree.root_node;
         static Stack stack;
         stack.clear ( );
         stack.push_back ( root_node_to_be_ );
         while ( stack.size ( ) ) {
             const NodeID parent = stack.back ( ); stack.pop_back ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid ( ) != a; a = m_arcs [ a.value ].next_out ) {
                 const NodeID child { m_arcs [ a.value ].target };
-                if ( NodeID::invalid == visited [ child.value ] ) { // Not visited yet.
+                if ( NodeID::invalid ( ) == visited [ child.value ] ) { // Not visited yet.
                     visited [ child.value ] = sub_tree.addNode ( std::move ( m_nodes [ child.value ].data ) );
                     stack.push_back ( child );
                 }
@@ -768,9 +768,9 @@ class SearchTree {
 
 
     void traverseBreadthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
-        assert ( NodeID::invalid != root_node_to_be_ );
+        assert ( NodeID::invalid ( ) != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
         static std::vector<bool> visited;
         visited.clear ( );
         visited.resize ( m_nodes.size ( ), false );
@@ -780,7 +780,7 @@ class SearchTree {
         queue.push_back ( root_node_to_be_ );
         while ( queue.size ( ) ) {
             const NodeID parent = queue.front ( ); queue.pop_front ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid ( ) != a; a = m_arcs [ a.value ].next_out ) {
                 const NodeID child { m_arcs [ a.value ].target };
                 if ( not ( visited [ child.value ] ) ) { // Not visited yet.
                     visited [ child.value ] = true;
@@ -797,9 +797,9 @@ class SearchTree {
     }
 
     void traverseDepthFirst ( const NodeID root_node_to_be_ = NodeID { 1 } ) { // Default is to walk the whole tree.
-        assert ( NodeID::invalid != root_node_to_be_ );
+        assert ( NodeID::invalid ( ) != root_node_to_be_ );
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid.
+        // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
         static std::vector<bool> visited;
         visited.clear ( );
         visited.resize ( m_nodes.size ( ), false );
@@ -809,7 +809,7 @@ class SearchTree {
         stack.push_back ( root_node_to_be_ );
         while ( stack.size ( ) ) {
             const NodeID parent = stack.back ( ); stack.pop_back ( );
-            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid != a; a = m_arcs [ a.value ].next_out ) {
+            for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid ( ) != a; a = m_arcs [ a.value ].next_out ) {
                 const NodeID child { m_arcs [ a.value ].target };
                 if ( not ( visited [ child.value ] ) ) { // Not visited yet.
                     visited [ child.value ] = true;
@@ -833,10 +833,10 @@ class SearchTree {
         stack.push_back ( root_node );
         while ( stack.size ( ) ) {
             sorted.push_back ( stack.back ( ) ); stack.pop_back ( );
-            for ( ArcID out = m_nodes [ sorted.back ( ).value ].head_out; ArcID::invalid != out; out = m_arcs [ out.value ].next_out ) {
+            for ( ArcID out = m_nodes [ sorted.back ( ).value ].head_out; ArcID::invalid ( ) != out; out = m_arcs [ out.value ].next_out ) {
                 removed_arcs [ out.value ] = true;
                 bool has_no_in_arcs = true;
-                for ( ArcID in = m_nodes [ m_arcs [ out.value ].target.value ].head_in; ArcID::invalid != in; in = m_arcs [ in.value ].next_in ) {
+                for ( ArcID in = m_nodes [ m_arcs [ out.value ].target.value ].head_in; ArcID::invalid ( ) != in; in = m_arcs [ in.value ].next_in ) {
                     if ( not ( removed_arcs [ in.value ] ) ) {
                         has_no_in_arcs = false;
                         break;
