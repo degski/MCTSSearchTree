@@ -112,35 +112,32 @@ int main ( ) {
 
     Arc a15 = t.addArc ( n2, n8, 15 );
 
-    std::wcout << t.arcNum ( ) << L" - " << t.nodeNum ( ) << nl << nl;
+    std::cout << t.arcNum ( ) << L" - " << t.nodeNum ( ) << nl << nl;
 
     Tree s = t.makeSubTree ( Node { 2 } );
 
-    std::wcout << s.arcNum ( ) << L" - " << s.nodeNum ( ) << nl << nl;
+    std::cout << s.arcNum ( ) << L" - " << s.nodeNum ( ) << nl << nl;
 
     t.traverseBreadthFirst ( );
 
-    std::wcout << nl << nl;
+    std::cout << nl << nl;
 
     t.traverseDepthFirst  ( );
 
-    std::wcout << nl << nl;
+    std::cout << nl << nl;
 
     const auto sorted { t.topologicalSort ( ) };
 
-    for ( auto v : sorted ) {
-        std::wcout << v << L' ';
-    }
-    std::wcout << L'\n';
-
-    std::wcout << nl << nl;
+    for ( auto v : sorted )
+        std::cout << v << ' ';
+    std::cout << nl << nl << nl;
 
     return EXIT_SUCCESS;
 }
 
 
 
-int wmain67689 ( ) {
+int main67689 ( ) {
 
     using namespace fst;
 
@@ -151,8 +148,8 @@ int wmain67689 ( ) {
 
     using Tree = SearchTree<MoveType, MovesType>;
 
-    std::wcout << sizeof ( Tree::Arc ) << nl; //32
-    std::wcout << sizeof ( Tree::Node ) << nl; //512
+    std::cout << sizeof ( Tree::Arc ) << nl; //32
+    std::cout << sizeof ( Tree::Node ) << nl; //512
 
     Tree t ( getMoves ( ) ); // Root Moves.
 
@@ -185,9 +182,9 @@ int wmain67689 ( ) {
         elapsed = timer.get_elapsed_ms ( );
     }
 
-    std::wcout << t.arcNum ( ) << L" - " << t.nodeNum ( ) << nl << nl;
+    std::cout << t.arcNum ( ) << " - " << t.nodeNum ( ) << nl << nl;
 
-    std::wcout << static_cast<std::uint64_t> ( elapsed ) << nl;
+    std::cout << static_cast<std::uint64_t> ( elapsed ) << nl;
 
     return EXIT_SUCCESS;
 }
