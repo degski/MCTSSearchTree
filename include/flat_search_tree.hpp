@@ -273,9 +273,9 @@ class SearchTree {
     using ArcID = detail::ArcID;
     using NodeID = detail::NodeID;
     using Arc = detail::Arc<ArcData>;
-    using Arcs = tagged_vector<Arc>;
+    using Arcs = std::vector<Arc>;
     using Node = detail::Node<NodeData>;
-    using Nodes = tagged_vector<Node>;
+    using Nodes = std::vector<Node>;
     using Link = Link<SearchTree>;
     using OptionalLink = OptionalLink<SearchTree>;
     using Path = Path<SearchTree>;
@@ -781,12 +781,11 @@ class SearchTree {
         while ( queue.size ( ) ) {
             NodeID const parent = queue.front ( ); queue.pop_front ( );
             for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid ( ) != a; a = m_arcs [ a.value ].next_out ) {
-                NodeID const child { m_arcs [ a.value ].target };
+                NodeID child { m_arcs [ a.value ].target };
                 if ( not visited [ child.value ] ) { // Not visited yet.
                     visited [ child.value ] = true;
-                    queue.push_back ( child );
+                    queue.emplace_back ( std::move ( child ) );
                     // All nodes traversed once here.
-                    // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
                 }
                 // All arcs traversed once here [nodes are traversed (possibly) several times].
             }
@@ -807,13 +806,11 @@ class SearchTree {
         while ( stack.size ( ) ) {
             NodeID const parent = stack.back ( ); stack.pop_back ( );
             for ( ArcID a = m_nodes [ parent.value ].head_out; ArcID::invalid ( ) != a; a = m_arcs [ a.value ].next_out ) {
-                NodeID const child { m_arcs [ a.value ].target };
+                NodeID child { m_arcs [ a.value ].target };
                 if ( not visited [ child.value ] ) { // Not visited yet.
                     visited [ child.value ] = true;
-                    stack.push_back ( child );
-                    // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
+                    stack.emplace_back ( std::move ( child ) );
                 }
-                // std::wcout << parent << L" -> " << ( a.value - 1 ) << L" -> " << child << L'\n';
             }
         }
     }

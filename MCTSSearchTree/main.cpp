@@ -112,25 +112,20 @@ int main ( ) {
 
     Arc a15 = t.addArc ( n2, n8, 15 );
 
-    std::cout << t.arcNum ( ) << L" - " << t.nodeNum ( ) << nl << nl;
+    std::cout << t.arcNum ( ) << " - " << t.nodeNum ( ) << nl;
 
     Tree s = t.makeSubTree ( Node { 2 } );
 
-    std::cout << s.arcNum ( ) << L" - " << s.nodeNum ( ) << nl << nl;
+    std::cout << s.arcNum ( ) << " - " << s.nodeNum ( ) << nl;
 
     t.traverseBreadthFirst ( );
-
-    std::cout << nl << nl;
-
     t.traverseDepthFirst  ( );
-
-    std::cout << nl << nl;
 
     const auto sorted { t.topologicalSort ( ) };
 
     for ( auto v : sorted )
         std::cout << v << ' ';
-    std::cout << nl << nl << nl;
+    std::cout << nl;
 
     return EXIT_SUCCESS;
 }
