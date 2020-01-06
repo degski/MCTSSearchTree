@@ -704,16 +704,16 @@ class SearchTree {
         return const_out_iterator { * this, node_ };
     }
 
-    [[ maybe_unused ]] ArcData &  operator [ ] ( ArcID const arc_ ) noexcept {
+    [[ nodiscard ]] ArcData & operator [ ] ( ArcID const arc_ ) noexcept {
         return m_arcs [ arc_.value ].data;
     }
-    [[ maybe_unused ]] ArcData const &  operator [ ] ( ArcID const arc_ ) const noexcept {
+    [[ nodiscard ]] ArcData const & operator [ ] ( ArcID const arc_ ) const noexcept {
         return m_arcs [ arc_.value ].data;
     }
-    [[ maybe_unused ]] NodeData & operator [ ] ( NodeID const node_ ) noexcept {
+    [[ nodiscard ]] NodeData & operator [ ] ( NodeID const node_ ) noexcept {
         return m_nodes [ node_.value ].data;
     }
-    [[ maybe_unused ]] NodeData const & operator [ ] ( NodeID const node_ ) const noexcept {
+    [[ nodiscard ]] NodeData const & operator [ ] ( NodeID const node_ ) const noexcept {
         return m_nodes [ node_.value ].data;
     }
 
