@@ -64,7 +64,7 @@ int main ( ) {
 
     using namespace fsth;
 
-    rng.instance ( 123u );
+    auto x = rng.instance ( 123u );
 
     using Tree = SearchTree<int, int>;
     using Node = typename Tree::NodeID;
@@ -76,6 +76,8 @@ int main ( ) {
     auto hash = 0x14cd518c672612a9;
 
     Tree t ( 1 );
+
+    /*
 
     Node n2 = t.addNode ( 2 );
     Arc a1  = t.addArc ( t.root_node, n2, 1 );
@@ -128,6 +130,8 @@ int main ( ) {
         std::cout << v << ' ';
     std::cout << nl;
 
+    */
+
     return EXIT_SUCCESS;
 }
 
@@ -135,7 +139,7 @@ int main67689 ( ) {
 
     using namespace fst;
 
-    rng.instance ( 123u );
+    auto x = rng.instance ( 123u );
 
     std::bernoulli_distribution b_dist1 ( 0.66 );
     std::bernoulli_distribution b_dist2 ( 0.33 );

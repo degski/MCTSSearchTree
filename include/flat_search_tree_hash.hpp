@@ -29,7 +29,7 @@
 #include <cstdlib>
 
 #include <functional>
-#include <iostream>
+#include <sax/iostream.hpp>
 #include <iterator>
 #include <optional>
 #include <vector>
@@ -200,9 +200,15 @@ struct Node { // 24
     using type      = NodeID;
     using data_type = DataType;
 
-    constexpr Node ( ) noexcept {}
+    Node ( ) noexcept {}
+
+    Node ( Node const & )     = default;
+    Node ( Node && ) noexcept = default;
+
     template<typename... Args>
-    Node ( Args &&... args_ ) noexcept : data{ std::forward<Args> ( args_ )... } {}
+    Node ( Hash const & hash_, Args &&... args_ ) noexcept : hash{ hash_ }, data{ std::forward<Args> ( args_ )... } {}
+    template<typename... Args>
+    Node ( Hash && hash_, Args &&... args_ ) noexcept : hash{ std::move ( hash_ ) }, data{ std::forward<Args> ( args_ )... } {}
 
     template<typename Stream>
     [[maybe_unused]] friend Stream & operator<< ( Stream & out_, Node const node_ ) noexcept {
@@ -228,7 +234,7 @@ struct Node { // 24
 
     template<class Archive>
     void serialize ( Archive & ar_ ) {
-        ar_ ( head_in, tail_in, head_out, tail_out, in_size, out_size, data );
+        ar_ ( head_in, tail_in, head_out, tail_out, in_size, out_size, hash, data );
     }
 };
 
@@ -252,11 +258,14 @@ class SearchTree {
     using Queue        = boost::container::deque<NodeID>;
     using Trans        = std::unordered_map<Hash, NodeID, IdentityHasher>;
 
+    static constexpr Hash root_hash = 0x15cf518c77266217;
+
     template<typename... Args>
     SearchTree ( Args &&... args_ ) :
         root_arc{ 1 }, root_node{ 1 }, m_arcs{ { }, { NodeID::invalid ( ), root_node } }, m_nodes{
-            { }, { std::forward<Args> ( args_ )... }
+            { }, { root_hash, std::forward<Args> ( args_ )... }
         } {
+        m_trans.emplace ( root_hash, root_node );
         m_nodes[ root_node.value ].head_in = m_nodes[ root_node.value ].tail_in = root_arc;
         m_nodes[ root_node.value ].in_size = 1, m_nodes[ root_node.value ].out_size = 0;
     }
