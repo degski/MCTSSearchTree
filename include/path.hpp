@@ -134,6 +134,10 @@ class Path {
         m_path.reserve ( s_ );
     }
 
+    size_t size () const noexcept {
+        return m_path.size ( );
+    }
+
     template<typename Stream>
     [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Path & p_ ) noexcept {
         for ( const auto & l : p_ ) {

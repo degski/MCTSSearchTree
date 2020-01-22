@@ -51,77 +51,78 @@
 #include <sax/splitmix.hpp> // https://github.com/degski/Sax/blob/master/splitmix.hpp
 #include <sax/singleton.hpp>
 #include "flat_search_tree.hpp"
+#include "flat_search_tree_hash.hpp"
 #include "adjacency_search_tree.hpp"
 #include "link.hpp"
 #include "path.hpp"
 #include "mcts_emu.hpp"
 #include "moves.hpp"
 
-
 sax::singleton<sax::splitmix64> rng;
-
 
 int main ( ) {
 
-    using namespace fst;
+    using namespace fsth;
 
     rng.instance ( 123u );
 
     using Tree = SearchTree<int, int>;
     using Node = typename Tree::NodeID;
-    using Arc = typename Tree::ArcID;
+    using Arc  = typename Tree::ArcID;
 
     std::cout << sizeof ( Tree::Arc ) << nl;  //  32
     std::cout << sizeof ( Tree::Node ) << nl; // 512
 
+    auto hash = 0x14cd518c672612a9;
+
     Tree t ( 1 );
 
     Node n2 = t.addNode ( 2 );
-    Arc a1 = t.addArc ( t.root_node, n2, 1 );
+    Arc a1  = t.addArc ( t.root_node, n2, 1 );
 
     Node n3 = t.addNode ( 3 );
-    Arc a2 = t.addArc ( t.root_node, n3, 2 );
+    Arc a2  = t.addArc ( t.root_node, n3, 2 );
 
     Node n4 = t.addNode ( 4 );
-    Arc a3 = t.addArc ( t.root_node, n4, 3 );
+    Arc a3  = t.addArc ( t.root_node, n4, 3 );
 
     Node n5 = t.addNode ( 5 );
-    Arc a4 = t.addArc ( n2, n5, 4 );
-    Arc a5 = t.addArc ( n3, n5, 5 );
+    Arc a4  = t.addArc ( n2, n5, 4 );
+    Arc a5  = t.addArc ( n3, n5, 5 );
 
     Node n6 = t.addNode ( 6 );
-    Arc a6 = t.addArc ( n3, n6, 6 );
+    Arc a6  = t.addArc ( n3, n6, 6 );
 
     Node n7 = t.addNode ( 7 );
-    Arc a7 = t.addArc ( n3, n7, 7 );
+    Arc a7  = t.addArc ( n3, n7, 7 );
 
     Node n8 = t.addNode ( 8 );
-    Arc a8 = t.addArc ( n4, n8, 8 );
+    Arc a8  = t.addArc ( n4, n8, 8 );
 
     Node n9 = t.addNode ( 9 );
-    Arc a9 = t.addArc ( n5, n9, 9 );
+    Arc a9  = t.addArc ( n5, n9, 9 );
     Arc a10 = t.addArc ( n6, n9, 10 );
 
     Node n10 = t.addNode ( 10 );
-    Arc a11 = t.addArc ( n6, n10, 11 );
-    Arc a12 = t.addArc ( n7, n10, 12 );
-    Arc a13 = t.addArc ( n8, n10, 13 );
+    Arc a11  = t.addArc ( n6, n10, 11 );
+    Arc a12  = t.addArc ( n7, n10, 12 );
+    Arc a13  = t.addArc ( n8, n10, 13 );
 
     Node n11 = t.addNode ( 11 );
-    Arc a14 = t.addArc ( n8, n11, 14 );
+    Arc a14  = t.addArc ( n8, n11, 14 );
 
     Arc a15 = t.addArc ( n2, n8, 15 );
 
     std::cout << t.arcNum ( ) << " - " << t.nodeNum ( ) << nl;
 
-    Tree s = t.makeSubTree ( Node { 2 } );
+    Tree s = t.makeSubTree ( Node{ 2 } );
 
     std::cout << s.arcNum ( ) << " - " << s.nodeNum ( ) << nl;
 
     t.traverseBreadthFirst ( );
-    t.traverseDepthFirst  ( );
+    t.traverseDepthFirst ( );
 
-    const auto sorted { t.topologicalSort ( ) };
+    const auto sorted{ t.topologicalSort ( ) };
 
     for ( auto v : sorted )
         std::cout << v << ' ';
@@ -129,8 +130,6 @@ int main ( ) {
 
     return EXIT_SUCCESS;
 }
-
-
 
 int main67689 ( ) {
 
@@ -143,8 +142,8 @@ int main67689 ( ) {
 
     using Tree = SearchTree<MoveType, MovesType>;
 
-    std::cout << sizeof ( Tree::Arc ) << nl; //32
-    std::cout << sizeof ( Tree::Node ) << nl; //512
+    std::cout << sizeof ( Tree::Arc ) << nl;  // 32
+    std::cout << sizeof ( Tree::Node ) << nl; // 512
 
     Tree t ( getMoves ( ) ); // Root Moves.
 

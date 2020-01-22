@@ -214,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\flat_search_tree.hpp" />
+    <ClInclude Include="..\include\flat_search_tree_hash.hpp" />
     <ClInclude Include="..\include\path.hpp" />
     <ClInclude Include="..\include\link.hpp" />
     <ClInclude Include="..\include\types.hpp" />

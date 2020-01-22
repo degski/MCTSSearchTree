@@ -219,7 +219,7 @@ struct Arc {
 };
 
 template<typename DataType>
-struct Node {
+struct Node { // 24
 
     ArcID head_in, tail_in, head_out, tail_out;
     Int in_size = 0, out_size = 0;
@@ -664,7 +664,7 @@ class SearchTree {
     }
 
     [[ nodiscard ]] bool isLeaf ( NodeID const node_ ) const noexcept {
-        return not ( m_nodes [ node_.value ].out_size );
+        return not m_nodes [ node_.value ].out_size;
     }
     [[ nodiscard ]] bool isInternal ( NodeID const node_ ) const noexcept {
         return m_nodes [ node_.value ].out_size;
