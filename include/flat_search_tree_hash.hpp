@@ -56,6 +56,7 @@ struct IdentityHasher {
     using argument_type = Hash;
     using result_type   = argument_type;
     [[nodiscard]] constexpr std::size_t operator( ) ( Hash key_ ) const noexcept { return key_; }
+    [[nodiscard]] constexpr std::size_t operator( ) ( Hash && key_ ) const noexcept { return std::move ( key_ ); }
 };
 
 namespace detail {
@@ -69,14 +70,14 @@ struct ArcID {
     static constexpr ArcID invalid ( ) noexcept { return ArcID{ }; }
 
     constexpr explicit ArcID ( ) noexcept : value{ ARCID_INVALID_VALUE } {}
-    explicit ArcID ( Int && v_ ) noexcept : value{ std::move ( v_ ) } {}
-    explicit ArcID ( Int const & v_ ) noexcept : value{ v_ } {}
-    explicit ArcID ( std::size_t const v_ ) noexcept : value{ static_cast<Int> ( v_ ) } {}
+    constexpr explicit ArcID ( Int && v_ ) noexcept : value{ std::move ( v_ ) } {}
+    constexpr explicit ArcID ( Int const & v_ ) noexcept : value{ v_ } {}
+    constexpr explicit ArcID ( std::size_t const v_ ) noexcept : value{ static_cast<Int> ( v_ ) } {}
 
     [[nodiscard]] constexpr Int operator( ) ( ) const noexcept { return value; }
 
-    [[nodiscard]] bool operator== ( ArcID const rhs_ ) const noexcept { return value == rhs_.value; }
-    [[nodiscard]] bool operator!= ( ArcID const rhs_ ) const noexcept { return value != rhs_.value; }
+    [[nodiscard]] constexpr bool operator== ( ArcID const rhs_ ) const noexcept { return value == rhs_.value; }
+    [[nodiscard]] constexpr bool operator!= ( ArcID const rhs_ ) const noexcept { return value != rhs_.value; }
 
     template<typename Stream>
     [[maybe_unused]] friend Stream & operator<< ( Stream & out_, ArcID const id_ ) noexcept {
@@ -112,14 +113,14 @@ struct NodeID {
     static constexpr NodeID invalid ( ) noexcept { return NodeID{ }; }
 
     constexpr explicit NodeID ( ) noexcept : value{ NODEID_INVALID_VALUE } {}
-    explicit NodeID ( Int && v_ ) noexcept : value{ std::move ( v_ ) } {}
-    explicit NodeID ( Int const & v_ ) noexcept : value{ v_ } {}
-    explicit NodeID ( std::size_t const v_ ) noexcept : value{ static_cast<Int> ( v_ ) } {}
+    constexpr explicit NodeID ( Int && v_ ) noexcept : value{ std::move ( v_ ) } {}
+    constexpr explicit NodeID ( Int const & v_ ) noexcept : value{ v_ } {}
+    constexpr explicit NodeID ( std::size_t const v_ ) noexcept : value{ static_cast<Int> ( v_ ) } {}
 
     [[nodiscard]] constexpr Int operator( ) ( ) const noexcept { return value; }
 
-    [[nodiscard]] bool operator== ( NodeID const rhs_ ) const noexcept { return value == rhs_.value; }
-    [[nodiscard]] bool operator!= ( NodeID const rhs_ ) const noexcept { return value != rhs_.value; }
+    [[nodiscard]] constexpr bool operator== ( NodeID const rhs_ ) const noexcept { return value == rhs_.value; }
+    [[nodiscard]] constexpr bool operator!= ( NodeID const rhs_ ) const noexcept { return value != rhs_.value; }
 
     template<typename Stream>
     [[maybe_unused]] friend Stream & operator<< ( Stream & out_, NodeID const id_ ) noexcept {
@@ -287,10 +288,18 @@ class SearchTree {
         return id;
     }
 
+    [[nodiscard]] NodeID contains ( Hash const & hash_ ) const noexcept {
+        auto it = m_trans.find ( hash_ );
+        return m_trans.end ( ) == it ? NodeID::invalid ( ) : it->second;
+    }
+
+    // Add node, after checking it's not already added with NodeID contains ( Has ).
+    // A non-existing hash_ returns a NodeID::invalid ( );
     template<typename... Args>
-    [[maybe_unused]] NodeID addNode ( Args &&... args_ ) noexcept {
+    [[maybe_unused]] NodeID addNode ( Hash && hash_, Args &&... args_ ) noexcept {
         NodeID const id{ m_nodes.size ( ) };
         m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
+        m_trans.emplace ( std::move ( hash_ ), id );
         return id;
     }
 
