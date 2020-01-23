@@ -288,13 +288,13 @@ class SearchTree {
         return id;
     }
 
+    // A non-existing hash_ returns a NodeID::invalid ( ).
     [[nodiscard]] NodeID contains ( Hash const & hash_ ) const noexcept {
         auto it = m_trans.find ( hash_ );
         return m_trans.end ( ) == it ? NodeID::invalid ( ) : it->second;
     }
 
-    // Add node, after checking it's not already added with NodeID contains ( Has ).
-    // A non-existing hash_ returns a NodeID::invalid ( );
+    // Add node, after checking it's not already added with NodeID contains ( Hash ).
     template<typename... Args>
     [[maybe_unused]] NodeID addNode ( Hash && hash_, Args &&... args_ ) noexcept {
         NodeID const id{ m_nodes.size ( ) };
