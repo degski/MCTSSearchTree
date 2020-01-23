@@ -45,6 +45,10 @@
 #include "link.hpp"
 #include "path.hpp"
 
+struct dummy {
+    using type = int;
+};
+
 namespace fsth {
 
 template<typename ArcData, typename NodeData>
@@ -156,7 +160,7 @@ struct Arc {
     using type      = ArcID;
     using data_type = DataType;
 
-    constexpr Arc ( ) noexcept {}
+    constexpr Arc ( ) noexcept { std::cout << "dc" << nl; }
     template<typename... Args>
     Arc ( NodeID && s_, NodeID && t_, Args &&... args_ ) noexcept :
         source{ std::move ( s_ ) }, target{ std::move ( t_ ) }, data{ std::forward<Args> ( args_ )... } {}
@@ -187,6 +191,41 @@ struct Arc {
     template<class Archive>
     void serialize ( Archive & ar_ ) {
         ar_ ( source, target, next_in, next_out, data );
+    }
+};
+
+template<>
+struct Arc<void> { // Specialization for empty data in arc (not for arc).
+
+    NodeID source, target;
+    ArcID next_in, next_out;
+
+    using type      = ArcID;
+    using data_type = void;
+
+    constexpr Arc ( ) noexcept { std::cout << "dc void" << nl; }
+    template<typename... Args>
+    Arc ( NodeID && s_, NodeID && t_ ) noexcept : source{ std::move ( s_ ) }, target{ std::move ( t_ ) } {}
+    template<typename... Args>
+    Arc ( NodeID const s_, NodeID const t_ ) noexcept : source{ s_ }, target{ t_ } {}
+
+    template<typename Stream>
+    [[maybe_unused]] friend Stream & operator<< ( Stream & out_, Arc const a_ ) noexcept {
+        if constexpr ( std::is_same<typename Stream::char_type, wchar_t>::value ) {
+            out_ << L'<' << a_.source << L' ' << a_.target << L' ' << a_.next_in << L' ' << a_.next_out << L'>';
+        }
+        else {
+            out_ << '<' << a_.source << ' ' << a_.target << ' ' << a_.next_in << ' ' << a_.next_out << '>';
+        }
+        return out_;
+    }
+
+    private:
+    friend class cereal::access;
+
+    template<class Archive>
+    void serialize ( Archive & ar_ ) {
+        ar_ ( source, target, next_in, next_out );
     }
 };
 
@@ -582,8 +621,15 @@ class SearchTree {
     [[nodiscard]] const_out_iterator beginOut ( NodeID const node_ ) const noexcept { return const_out_iterator{ *this, node_ }; }
     [[nodiscard]] const_out_iterator cbeginOut ( NodeID const node_ ) const noexcept { return const_out_iterator{ *this, node_ }; }
 
-    [[nodiscard]] ArcData & operator[] ( ArcID const arc_ ) noexcept { return m_arcs[ arc_.value ].data; }
-    [[nodiscard]] ArcData const & operator[] ( ArcID const arc_ ) const noexcept { return m_arcs[ arc_.value ].data; }
+    template<typename AD = ArcData>
+    [[nodiscard]] std::enable_if_t<std::negation<std::is_void<AD>>::value, AD &> operator[] ( ArcID const arc_ ) noexcept {
+        return m_arcs[ arc_.value ].data;
+    }
+    template<typename AD = ArcData>
+    [[nodiscard]] std::enable_if_t<std::negation<std::is_void<AD>>::value, AD const &>
+    operator[] ( ArcID const arc_ ) const noexcept {
+        return m_arcs[ arc_.value ].data;
+    }
     [[nodiscard]] NodeData & operator[] ( NodeID const node_ ) noexcept { return m_nodes[ node_.value ].data; }
     [[nodiscard]] NodeData const & operator[] ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].data; }
 
