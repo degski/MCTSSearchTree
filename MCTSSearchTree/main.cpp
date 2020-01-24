@@ -77,10 +77,10 @@ int main ( ) {
 
     Tree t ( 1 );
 
-    /*
-
-    Node n2 = t.addNode ( 2 );
+    Node n2 = t.addNode ( hash, 2 );
     Arc a1  = t.addArc ( t.root_node, n2, 1 );
+
+    /*
 
     Node n3 = t.addNode ( 3 );
     Arc a2  = t.addArc ( t.root_node, n3, 2 );

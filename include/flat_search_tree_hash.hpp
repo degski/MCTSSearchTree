@@ -80,6 +80,8 @@ namespace detail {
 
 struct ArcID {
 
+    using value_type = Int;
+
     Int value;
 
     static constexpr ArcID invalid ( ) noexcept { return ArcID{ }; }
@@ -122,6 +124,8 @@ struct ArcID {
 #define NODEID_INVALID_VALUE ( 0 )
 
 struct NodeID {
+
+    using value_type = Int;
 
     Int value;
 
@@ -339,7 +343,7 @@ class SearchTree {
 
     template<typename... Args>
     [[maybe_unused]] ArcID addArc ( NodeID const source_, NodeID const target_, Args &&... args_ ) noexcept {
-        ArcID id = m_arcs.size ( );
+        ArcID id{ static_cast<typename ArcID::value_type> ( m_arcs.size ( ) ) };
         m_arcs.emplace_back ( source_, target_, std::forward<Args> ( args_ )... );
         if ( ArcID::invalid ( ) == m_nodes[ source_.value ].head_out )
             m_nodes[ source_.value ].tail_out = m_nodes[ source_.value ].head_out = id;
@@ -363,7 +367,7 @@ class SearchTree {
     // Add node, after checking it's not already added with NodeID contains ( Hash ).
     template<typename... Args>
     [[maybe_unused]] NodeID addNode ( Hash && hash_, Args &&... args_ ) noexcept {
-        NodeID id = m_nodes.size ( );
+        NodeID id{ static_cast<typename NodeID::value_type> ( m_nodes.size ( ) ) };
         m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
         m_trans.emplace ( std::move ( hash_ ), id );
         return id;
