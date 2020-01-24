@@ -66,7 +66,7 @@ int main ( ) {
 
     auto x = rng.instance ( 123u );
 
-    using Tree = SearchTree<void, int>;
+    using Tree = SearchTree<int, int>;
     using Node = typename Tree::NodeID;
     using Arc  = typename Tree::ArcID;
 

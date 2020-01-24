@@ -53,6 +53,12 @@
     <ClInclude Include="..\include\flat_search_tree_hash.hpp">
       <Filter>Header Files\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\bytell_hash_map.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\flat_hash_map.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE.md" />

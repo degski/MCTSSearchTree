@@ -213,6 +213,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\bytell_hash_map.hpp" />
+    <ClInclude Include="..\include\flat_hash_map.hpp" />
     <ClInclude Include="..\include\flat_search_tree.hpp" />
     <ClInclude Include="..\include\flat_search_tree_hash.hpp" />
     <ClInclude Include="..\include\path.hpp" />

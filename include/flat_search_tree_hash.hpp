@@ -41,13 +41,24 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
+// Costumization point.
+#ifndef USE_MIMALLOC
+#    define USE_MIMALLOC true
+#    ifndef USE_MIMALLOC_LTO
+#        if defined( _DEBUG )
+#            define USE_MIMALLOC_LTO false
+#        else
+#            define USE_MIMALLOC_LTO true
+#        endif
+#    endif
+#    include <mimalloc.h>
+#endif
+
+#include "bytell_hash_map.hpp"
+
 #include "types.hpp"
 #include "link.hpp"
 #include "path.hpp"
-
-struct dummy {
-    using type = int;
-};
 
 namespace fsth {
 
@@ -160,12 +171,18 @@ struct Arc {
     using type      = ArcID;
     using data_type = DataType;
 
-    constexpr Arc ( ) noexcept { std::cout << "dc" << nl; }
+    explicit Arc ( ) noexcept = default;
+
+    Arc ( Arc const & ) = default;
+    Arc ( Arc && )      = default;
+
+    ~Arc ( ) noexcept = default;
+
     template<typename... Args>
     Arc ( NodeID && s_, NodeID && t_, Args &&... args_ ) noexcept :
         source{ std::move ( s_ ) }, target{ std::move ( t_ ) }, data{ std::forward<Args> ( args_ )... } {}
     template<typename... Args>
-    Arc ( NodeID const s_, NodeID const t_, Args &&... args_ ) noexcept :
+    Arc ( NodeID const & s_, NodeID const & t_, Args &&... args_ ) noexcept :
         source{ s_ }, target{ t_ }, data{ std::forward<Args> ( args_ )... } {}
 
     template<typename Stream>
@@ -195,7 +212,7 @@ struct Arc {
 };
 
 template<>
-struct Arc<void> { // Specialization for empty data in arc (not for arc).
+struct Arc<void> { // Specialization for empty Data in Arc (not for Node).
 
     NodeID source, target;
     ArcID next_in, next_out;
@@ -203,11 +220,17 @@ struct Arc<void> { // Specialization for empty data in arc (not for arc).
     using type      = ArcID;
     using data_type = void;
 
-    constexpr Arc ( ) noexcept { std::cout << "dc void" << nl; }
+    explicit Arc ( ) noexcept = default;
+
+    Arc ( Arc const & ) = default;
+    Arc ( Arc && )      = default;
+
+    ~Arc ( ) noexcept = default;
+
     template<typename... Args>
     Arc ( NodeID && s_, NodeID && t_ ) noexcept : source{ std::move ( s_ ) }, target{ std::move ( t_ ) } {}
     template<typename... Args>
-    Arc ( NodeID const s_, NodeID const t_ ) noexcept : source{ s_ }, target{ t_ } {}
+    Arc ( NodeID const & s_, NodeID const & t_ ) noexcept : source{ s_ }, target{ t_ } {}
 
     template<typename Stream>
     [[maybe_unused]] friend Stream & operator<< ( Stream & out_, Arc const a_ ) noexcept {
@@ -240,10 +263,12 @@ struct Node { // 24
     using type      = NodeID;
     using data_type = DataType;
 
-    Node ( ) noexcept {}
+    explicit Node ( ) noexcept {}
 
     Node ( Node const & )     = default;
     Node ( Node && ) noexcept = default;
+
+    ~Node ( ) noexcept = default;
 
     template<typename... Args>
     Node ( Hash const & hash_, Args &&... args_ ) noexcept : hash{ hash_ }, data{ std::forward<Args> ( args_ )... } {}
@@ -296,14 +321,16 @@ class SearchTree {
     using Visited      = std::vector<NodeID>; // New m_nodes by old_index.
     using Stack        = std::vector<NodeID>;
     using Queue        = boost::container::deque<NodeID>;
-    using Trans        = std::unordered_map<Hash, NodeID, IdentityHasher>;
+    // using Trans        = std::unordered_map<Hash, NodeID, IdentityHasher>;
+    using Trans =
+        ska::bytell_hash_map<Hash, NodeID, IdentityHasher, std::equal_to<Hash>, mi_stl_allocator<std::pair<Hash, NodeID>>>;
 
-    static constexpr Hash root_hash = 0x15cf518c77266217;
+    static constexpr Hash root_hash = 0x15cf518c77266217ull;
 
     template<typename... Args>
     SearchTree ( Args &&... args_ ) :
-        root_arc{ 1 }, root_node{ 1 }, m_arcs{ { }, { NodeID::invalid ( ), root_node } }, m_nodes{
-            { }, { root_hash, std::forward<Args> ( args_ )... }
+        root_arc{ 1 }, root_node{ 1 }, m_arcs{ Arc{ }, Arc{ NodeID::invalid ( ), root_node } }, m_nodes{
+            Node{ }, Node{ root_hash, std::forward<Args> ( args_ )... }
         } {
         m_trans.emplace ( root_hash, root_node );
         m_nodes[ root_node.value ].head_in = m_nodes[ root_node.value ].tail_in = root_arc;
@@ -312,7 +339,7 @@ class SearchTree {
 
     template<typename... Args>
     [[maybe_unused]] ArcID addArc ( NodeID const source_, NodeID const target_, Args &&... args_ ) noexcept {
-        ArcID const id{ m_arcs.size ( ) };
+        ArcID id = m_arcs.size ( );
         m_arcs.emplace_back ( source_, target_, std::forward<Args> ( args_ )... );
         if ( ArcID::invalid ( ) == m_nodes[ source_.value ].head_out )
             m_nodes[ source_.value ].tail_out = m_nodes[ source_.value ].head_out = id;
@@ -336,7 +363,7 @@ class SearchTree {
     // Add node, after checking it's not already added with NodeID contains ( Hash ).
     template<typename... Args>
     [[maybe_unused]] NodeID addNode ( Hash && hash_, Args &&... args_ ) noexcept {
-        NodeID const id{ m_nodes.size ( ) };
+        NodeID id = m_nodes.size ( );
         m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
         m_trans.emplace ( std::move ( hash_ ), id );
         return id;
@@ -621,6 +648,7 @@ class SearchTree {
     [[nodiscard]] const_out_iterator beginOut ( NodeID const node_ ) const noexcept { return const_out_iterator{ *this, node_ }; }
     [[nodiscard]] const_out_iterator cbeginOut ( NodeID const node_ ) const noexcept { return const_out_iterator{ *this, node_ }; }
 
+    // Sfinea depends on the function template parameters, therefor the parameter AD is defaulted.
     template<typename AD = ArcData>
     [[nodiscard]] std::enable_if_t<std::negation<std::is_void<AD>>::value, AD &> operator[] ( ArcID const arc_ ) noexcept {
         return m_arcs[ arc_.value ].data;
