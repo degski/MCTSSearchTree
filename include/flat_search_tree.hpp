@@ -240,8 +240,8 @@ class SearchTree {
     using Link         = Link<SearchTree>;
     using OptionalLink = OptionalLink<SearchTree>;
     using Path         = Path<SearchTree>;
-    using Visited      = std::vector<NodeID>; // New m_nodes by old_index.
-    using Stack        = std::vector<NodeID>;
+    using Visited      = vector<NodeID>; // New m_nodes by old_index.
+    using Stack        = vector<NodeID>;
     using Queue        = boost::container::deque<NodeID>;
 
     template<typename... Args>
@@ -582,13 +582,9 @@ class SearchTree {
         SearchTree sub_tree{ std::move ( m_nodes[ root_node_to_be_.value ].data ) };
         // The Visited-vector stores the new NodeID's indexed by old NodeID's,
         // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
-        static Visited visited;
-        visited.clear ( );
-        visited.resize ( m_nodes.size ( ), NodeID::invalid ( ) );
+        Visited visited ( m_nodes.size ( ), NodeID::invalid ( ) );
         visited[ root_node_to_be_.value ] = sub_tree.root_node;
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node_to_be_ );
+        Stack stack ( { root_node_to_be_ } );
         while ( stack.size ( ) ) {
             NodeID const parent = stack.back ( );
             stack.pop_back ( );
@@ -638,9 +634,7 @@ class SearchTree {
         visited.clear ( );
         visited.resize ( m_nodes.size ( ), false );
         visited[ root_node_to_be_.value ] = true;
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node_to_be_ );
+        Stack stack ( { root_node_to_be_ } );
         while ( stack.size ( ) ) {
             NodeID const parent = stack.back ( );
             stack.pop_back ( );
@@ -660,9 +654,7 @@ class SearchTree {
         static std::vector<bool> removed_arcs;
         removed_arcs.clear ( );
         removed_arcs.resize ( m_arcs.size ( ), false );
-        static Stack stack;
-        stack.clear ( );
-        stack.push_back ( root_node );
+        Stack stack ( { root_node } );
         while ( stack.size ( ) ) {
             sorted.push_back ( stack.back ( ) );
             stack.pop_back ( );
