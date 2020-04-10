@@ -40,6 +40,7 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
+#include "../../windows_system/include/vm_backed.hpp"
 #include "types.hpp"
 #include "link.hpp"
 #include "path.hpp"
@@ -226,13 +227,16 @@ struct Node { // 24
 template<typename ArcData, typename NodeData>
 class SearchTree {
 
+    template<typename Type>
+    using vector = sax::vm_vector<Type, std::size_t, 1'000'000ull>;
+
     public:
     using ArcID        = detail::ArcID;
     using NodeID       = detail::NodeID;
     using Arc          = detail::Arc<ArcData>;
-    using Arcs         = std::vector<Arc>;
+    using Arcs         = vector<Arc>;
     using Node         = detail::Node<NodeData>;
-    using Nodes        = std::vector<Node>;
+    using Nodes        = vector<Node>;
     using Link         = Link<SearchTree>;
     using OptionalLink = OptionalLink<SearchTree>;
     using Path         = Path<SearchTree>;
