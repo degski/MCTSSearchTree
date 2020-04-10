@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2018, 2019 degski
+// Copyright (c) 2018, 2019, 2020 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -60,7 +60,7 @@
 
 sax::singleton<sax::splitmix64> rng;
 
-int main ( ) {
+int main8578 ( ) {
 
     using namespace fsth;
 
@@ -135,7 +135,7 @@ int main ( ) {
     return EXIT_SUCCESS;
 }
 
-int main67689 ( ) {
+int main ( ) {
 
     using namespace fst;
 

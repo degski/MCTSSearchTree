@@ -1,7 +1,7 @@
 
 // MIT License
 //
-// Copyright (c) 2018, 2019 degski
+// Copyright (c) 2018, 2019, 2020 degski
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,107 +39,69 @@
 #include "types.hpp"
 #include "link.hpp"
 
-
 template<typename Tree>
 class Path {
 
     // A stack-like structure...
 
-    using ArcID = typename Tree::ArcID;
+    using ArcID  = typename Tree::ArcID;
     using NodeID = typename Tree::NodeID;
 
-    using Link = Link<Tree>;
-    using OptionalLink = OptionalLink<Tree>;
-    using iterator = typename tagged_vector<Link>::iterator;
-    using const_iterator = typename tagged_vector<Link>::const_iterator;
-    using reference = typename tagged_vector<Link>::reference;
+    using Link            = Link<Tree>;
+    using OptionalLink    = OptionalLink<Tree>;
+    using iterator        = typename tagged_vector<Link>::iterator;
+    using const_iterator  = typename tagged_vector<Link>::const_iterator;
+    using reference       = typename tagged_vector<Link>::reference;
     using const_reference = typename tagged_vector<Link>::const_reference;
 
-    struct path_tag { };
+    struct path_tag {};
 
     tagged_vector<Link, std::allocator<Link>, path_tag> m_path;
 
     public:
-
-    Path ( ) noexcept :
-        m_path { } {
-    }
-    Path ( const Link & l_ ) noexcept :
-        m_path { 1u, l_ } {
-    }
-    Path ( const ArcID a_, const NodeID t_ ) noexcept :
-        m_path { 1u, Link { a_, t_ } } {
-    }
+    Path ( ) noexcept : m_path{ } {}
+    Path ( const Link & l_ ) noexcept : m_path{ 1u, l_ } {}
+    Path ( const ArcID a_, const NodeID t_ ) noexcept : m_path{ 1u, Link{ a_, t_ } } {}
 
     void reset ( const ArcID a_, const NodeID t_ ) noexcept {
         m_path.resize ( 1u );
-        m_path [ 0u ].arc = a_;
-        m_path [ 0u ].target = t_;
+        m_path[ 0u ].arc    = a_;
+        m_path[ 0u ].target = t_;
     }
 
-    void emplace ( Link && l_ ) noexcept {
-        m_path.emplace_back ( std::move ( l_ ) );
-    }
-    void push ( const Link & l_ ) noexcept {
-        m_path.push_back ( l_ );
-    }
+    void emplace ( Link && l_ ) noexcept { m_path.emplace_back ( std::move ( l_ ) ); }
+    void push ( const Link & l_ ) noexcept { m_path.push_back ( l_ ); }
     void push ( const OptionalLink & l_ ) noexcept {
         if ( l_.has_value ( ) ) {
             m_path.push_back ( l_.value ( ) );
         }
     }
-    void push ( const ArcID a_, const NodeID t_ ) noexcept {
-        m_path.emplace_back ( a_, t_ );
-    }
-    [[ maybe_unused ]] Link pop ( ) noexcept {
-        const Link r { m_path.back ( ) };
+    void push ( const ArcID a_, const NodeID t_ ) noexcept { m_path.emplace_back ( a_, t_ ); }
+    [[maybe_unused]] Link pop ( ) noexcept {
+        const Link r{ m_path.back ( ) };
         m_path.pop_back ( );
         return r;
     }
 
-    [[ nodiscard ]] reference back ( ) noexcept {
-        return m_path.back ( );
-    }
-    [[ nodiscard ]] const_reference back ( ) const noexcept {
-        return m_path.back ( );
-    }
+    [[nodiscard]] reference back ( ) noexcept { return m_path.back ( ); }
+    [[nodiscard]] const_reference back ( ) const noexcept { return m_path.back ( ); }
 
-    [[ nodiscard ]] iterator begin ( ) noexcept {
-        return m_path.begin ( );
-    }
-    [[ nodiscard ]] const_iterator begin ( ) const noexcept {
-        return m_path.begin ( );
-    }
-    [[ nodiscard ]] const_iterator cbegin ( ) const noexcept {
-        return m_path.cbegin ( );
-    }
+    [[nodiscard]] iterator begin ( ) noexcept { return m_path.begin ( ); }
+    [[nodiscard]] const_iterator begin ( ) const noexcept { return m_path.begin ( ); }
+    [[nodiscard]] const_iterator cbegin ( ) const noexcept { return m_path.cbegin ( ); }
 
-    [[ nodiscard ]] iterator end ( ) noexcept {
-        return m_path.end ( );
-    }
-    [[ nodiscard ]] const_iterator end ( ) const noexcept {
-        return m_path.end ( );
-    }
-    [[ nodiscard ]] const_iterator cend ( ) const noexcept {
-        return m_path.cend ( );
-    }
+    [[nodiscard]] iterator end ( ) noexcept { return m_path.end ( ); }
+    [[nodiscard]] const_iterator end ( ) const noexcept { return m_path.end ( ); }
+    [[nodiscard]] const_iterator cend ( ) const noexcept { return m_path.cend ( ); }
 
-    void clear ( ) noexcept {
-        m_path.clear ( );
-    }
-    void resize ( const size_t s_ ) noexcept {
-        m_path.resize ( s_ );
-    }
-    void reserve ( const size_t s_ ) noexcept {
-        m_path.reserve ( s_ );
-    }
+    void clear ( ) noexcept { m_path.clear ( ); }
+    void resize ( const size_t s_ ) noexcept { m_path.resize ( s_ ); }
+    void reserve ( const size_t s_ ) noexcept { m_path.reserve ( s_ ); }
 
-    size_t size () const noexcept {
-        return m_path.size ( );
-    }
+    size_t size ( ) const noexcept { return m_path.size ( ); }
 
     template<typename Stream>
-    [[ maybe_unused ]] friend Stream & operator << ( Stream & out_, const Path & p_ ) noexcept {
+    [[maybe_unused]] friend Stream & operator<< ( Stream & out_, const Path & p_ ) noexcept {
         for ( const auto & l : p_ ) {
             out_ << l;
         }
@@ -148,10 +110,9 @@ class Path {
     }
 
     private:
-
     friend class cereal::access;
 
-    template < class Archive >
+    template<class Archive>
     void serialize ( Archive & ar_ ) {
         ar_ ( m_path );
     }
