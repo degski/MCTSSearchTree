@@ -228,7 +228,7 @@ template<typename ArcData, typename NodeData>
 class SearchTree {
 
     template<typename Type>
-    using vector = sax::vm_vector<Type, std::size_t, 1'000'000ull>;
+    using vector = sax::vm_vector<Type, Int, 1'000'000>;
 
     public:
     using ArcID        = detail::ArcID;
