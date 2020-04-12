@@ -40,7 +40,8 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
-#include "../../windows_system/include/vm_backed.hpp"
+#include <sax/vm_backed.hpp>
+
 #include "types.hpp"
 #include "link.hpp"
 #include "path.hpp"
