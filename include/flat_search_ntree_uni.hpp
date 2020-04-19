@@ -164,11 +164,11 @@ class SearchTree {
     template<typename... Args>
     [[maybe_unused]] NodeID add_node ( NodeID const source_, Args &&... args_ ) noexcept {
         NodeID id{ m_nodes.size ( ) };
-        Node & t            = m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
-        m_nodes.back ( ).up = source_;
-        Node & s            = m_nodes[ source_.value ];
+        Node & t = m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
+        t.up     = source_;
+        Node & s = m_nodes[ source_.value ];
         if ( HEDLEY_LIKELY ( NodeID::invalid ( ) != s.tail ) )
-            m_nodes.back ( ).prev = s.tail;
+            t.prev = s.tail;
         s.tail = id;
         ++s.size;
         return id;
