@@ -42,8 +42,6 @@
 
 #include <hedley.hpp>
 
-#include <sax/vm_backed.hpp>
-
 #include "types.hpp"
 
 namespace fsntu {
@@ -164,7 +162,7 @@ class SearchTree {
     void reserve ( size_type c_ ) { m_nodes.reserve ( static_cast<typename Nodes::size_type> ( c_ ) ); }
 
     template<typename... Args>
-    [[maybe_unused]] NodeID addNode ( NodeID const source_, Args &&... args_ ) noexcept {
+    [[maybe_unused]] NodeID add_node ( NodeID const source_, Args &&... args_ ) noexcept {
         NodeID id{ m_nodes.size ( ) };
         Node & t            = m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
         m_nodes.back ( ).up = source_;
@@ -250,21 +248,15 @@ class SearchTree {
         [[nodiscard]] NodeID id ( ) const noexcept { return m_id; }
     };
 
-    [[nodiscard]] bool isLeaf ( NodeID const node_ ) const noexcept { return not m_nodes[ node_.value ].size; }
-    [[nodiscard]] bool isInternal ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].size; }
+    [[nodiscard]] bool is_leaf ( NodeID const node_ ) const noexcept { return not m_nodes[ node_.value ].size; }
+    [[nodiscard]] bool is_internal ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].size; }
 
-    [[nodiscard]] Int arity ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].size; }
+    [[nodiscard]] size_type arity ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].size; }
 
     [[nodiscard]] NodeData & operator[] ( NodeID const node_ ) noexcept { return m_nodes[ node_.value ].data; }
     [[nodiscard]] NodeData const & operator[] ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].data; }
 
-    // The number of valid nodes. This is not the same as the size of
-    // the nodes-vector, which allows for some additional admin elements,
-    // use nodesSize ( ) instead.
-    [[nodiscard]] Int nodeNum ( ) const noexcept { return static_cast<Int> ( m_nodes.size ( ) ) - 1; }
-
-    // The size of the nodes-vector (allows for some admin elements).
-    [[nodiscard]] std::size_t nodesSize ( ) const noexcept { return m_nodes.size ( ); }
+    [[nodiscard]] size_type size ( ) const noexcept { return static_cast<size_type> ( m_nodes.size ( ) ) - 1; }
 
     // Data members.
 

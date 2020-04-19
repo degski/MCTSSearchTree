@@ -78,29 +78,29 @@ int main ( ) {
 
     Tree t ( 1 );
 
-    Node n2 = t.addNode ( t.root_node, 2 );
+    Node n2 = t.add_node ( t.root_node, 2 );
 
-    Node n3 = t.addNode ( t.root_node, 3 );
+    Node n3 = t.add_node ( t.root_node, 3 );
 
-    Node n4 = t.addNode ( t.root_node, 4 );
+    Node n4 = t.add_node ( t.root_node, 4 );
 
-    Node n5 = t.addNode ( n2, 5 );
+    Node n5 = t.add_node ( n2, 5 );
 
-    Node n6 = t.addNode ( n2, 6 );
+    Node n6 = t.add_node ( n2, 6 );
 
-    Node n7 = t.addNode ( n3, 7 );
+    Node n7 = t.add_node ( n3, 7 );
 
-    Node n8 = t.addNode ( n4, 8 );
+    Node n8 = t.add_node ( n4, 8 );
 
-    Node n9 = t.addNode ( t.root_node, 9 );
+    Node n9 = t.add_node ( t.root_node, 9 );
 
-    Node n10 = t.addNode ( n4, 10 );
+    Node n10 = t.add_node ( n4, 10 );
 
-    Node n11 = t.addNode ( n2, 11 );
+    Node n11 = t.add_node ( n2, 11 );
 
-    Node n12 = t.addNode ( n2, 12 );
+    Node n12 = t.add_node ( n2, 12 );
 
-    std::cout << t.nodeNum ( ) << nl;
+    std::cout << t.size ( ) << nl;
 
     for ( It it{ t, n2 }; it.is_valid ( ); ++it )
         std::cout << it.id ( ) << ' ';
