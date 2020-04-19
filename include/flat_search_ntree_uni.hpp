@@ -40,8 +40,6 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
-#include <hedley.hpp>
-
 #include "types.hpp"
 
 namespace fsntu {
@@ -167,9 +165,8 @@ class SearchTree {
         Node & t = m_nodes.emplace_back ( std::forward<Args> ( args_ )... );
         t.up     = source_;
         Node & s = m_nodes[ source_.value ];
-        if ( HEDLEY_LIKELY ( NodeID::invalid ( ) != s.tail ) )
-            t.prev = s.tail;
-        s.tail = id;
+        t.prev   = s.tail;
+        s.tail   = id;
         ++s.size;
         return id;
     }
