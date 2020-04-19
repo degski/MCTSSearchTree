@@ -53,6 +53,8 @@
 #include "flat_search_tree.hpp"
 #include "flat_search_tree_hash.hpp"
 #include "adjacency_search_tree.hpp"
+#include "flat_search_ntree.hpp"
+#include "flat_search_ntree_uni.hpp"
 #include "link.hpp"
 #include "path.hpp"
 #include "mcts_emu.hpp"
@@ -60,82 +62,55 @@
 
 sax::singleton<sax::splitmix64> rng;
 
-int main8578 ( ) {
+int main ( ) {
 
-    using namespace fsth;
+    using namespace fsntu;
 
     auto x = rng.instance ( 123u );
 
-    using Tree = SearchTree<int, int>;
+    using Tree = SearchTree<int>;
     using Node = typename Tree::NodeID;
-    using Arc  = typename Tree::ArcID;
+    using It   = typename Tree::const_out_iterator;
 
-    std::cout << sizeof ( Tree::Arc ) << nl;  //  32
     std::cout << sizeof ( Tree::Node ) << nl; // 512
 
     auto hash = 0x14cd518c672612a9;
 
     Tree t ( 1 );
 
-    Node n2 = t.addNode ( hash, 2 );
-    Arc a1  = t.addArc ( t.root_node, n2, 1 );
+    Node n2 = t.addNode ( t.root_node, 2 );
 
-    /*
+    Node n3 = t.addNode ( t.root_node, 3 );
 
-    Node n3 = t.addNode ( 3 );
-    Arc a2  = t.addArc ( t.root_node, n3, 2 );
+    Node n4 = t.addNode ( t.root_node, 4 );
 
-    Node n4 = t.addNode ( 4 );
-    Arc a3  = t.addArc ( t.root_node, n4, 3 );
+    Node n5 = t.addNode ( n2, 5 );
 
-    Node n5 = t.addNode ( 5 );
-    Arc a4  = t.addArc ( n2, n5, 4 );
-    Arc a5  = t.addArc ( n3, n5, 5 );
+    Node n6 = t.addNode ( n2, 6 );
 
-    Node n6 = t.addNode ( 6 );
-    Arc a6  = t.addArc ( n3, n6, 6 );
+    Node n7 = t.addNode ( n3, 7 );
 
-    Node n7 = t.addNode ( 7 );
-    Arc a7  = t.addArc ( n3, n7, 7 );
+    Node n8 = t.addNode ( n4, 8 );
 
-    Node n8 = t.addNode ( 8 );
-    Arc a8  = t.addArc ( n4, n8, 8 );
+    Node n9 = t.addNode ( t.root_node, 9 );
 
-    Node n9 = t.addNode ( 9 );
-    Arc a9  = t.addArc ( n5, n9, 9 );
-    Arc a10 = t.addArc ( n6, n9, 10 );
+    Node n10 = t.addNode ( n4, 10 );
 
-    Node n10 = t.addNode ( 10 );
-    Arc a11  = t.addArc ( n6, n10, 11 );
-    Arc a12  = t.addArc ( n7, n10, 12 );
-    Arc a13  = t.addArc ( n8, n10, 13 );
+    Node n11 = t.addNode ( n2, 11 );
 
-    Node n11 = t.addNode ( 11 );
-    Arc a14  = t.addArc ( n8, n11, 14 );
+    Node n12 = t.addNode ( n2, 12 );
 
-    Arc a15 = t.addArc ( n2, n8, 15 );
+    std::cout << t.nodeNum ( ) << nl;
 
-    std::cout << t.arcNum ( ) << " - " << t.nodeNum ( ) << nl;
+    for ( It it{ t, n2 }; it.is_valid ( ); ++it )
+        std::cout << it.id ( ) << ' ';
 
-    Tree s = t.makeSubTree ( Node{ 2 } );
-
-    std::cout << s.arcNum ( ) << " - " << s.nodeNum ( ) << nl;
-
-    t.traverseBreadthFirst ( );
-    t.traverseDepthFirst ( );
-
-    const auto sorted{ t.topologicalSort ( ) };
-
-    for ( auto v : sorted )
-        std::cout << v << ' ';
     std::cout << nl;
-
-    */
 
     return EXIT_SUCCESS;
 }
 
-int main ( ) {
+int main986986 ( ) {
 
     using namespace fst;
 

@@ -215,6 +215,8 @@
   <ItemGroup>
     <ClInclude Include="..\include\bytell_hash_map.hpp" />
     <ClInclude Include="..\include\flat_hash_map.hpp" />
+    <ClInclude Include="..\include\flat_search_ntree.hpp" />
+    <ClInclude Include="..\include\flat_search_ntree_uni.hpp" />
     <ClInclude Include="..\include\flat_search_tree.hpp" />
     <ClInclude Include="..\include\flat_search_tree_hash.hpp" />
     <ClInclude Include="..\include\path.hpp" />

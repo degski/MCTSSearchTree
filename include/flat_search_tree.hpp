@@ -229,7 +229,8 @@ template<typename ArcData, typename NodeData>
 class SearchTree {
 
     template<typename Type>
-    using vector = sax::vm_vector<Type, Int, 1'000'000>;
+    // using vector = sax::vm_vector<Type, Int, 1'000'000>;
+    using vector = std::vector<Type>;
 
     public:
     using ArcID        = detail::ArcID;
@@ -433,7 +434,7 @@ class SearchTree {
 
         friend class SearchTree;
 
-        const SearchTree & m_st;
+        SearchTree const & m_st;
         ArcID m_id;
 
         public:
@@ -499,7 +500,7 @@ class SearchTree {
 
         friend class SearchTree;
 
-        const SearchTree & m_st;
+        SearchTree const & m_st;
         ArcID m_id;
 
         public:
