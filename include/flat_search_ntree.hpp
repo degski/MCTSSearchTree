@@ -146,6 +146,7 @@ class SearchTree {
     using Nodes  = std::vector<Node>;
     // using Nodes = sax::vm_vector<Type, Int, 1'000'000>;
 
+    using size_type       = Int;
     using difference_type = typename Nodes::difference_type;
     using value_type      = typename Nodes::value_type;
     using reference       = typename Nodes::reference;
@@ -155,8 +156,12 @@ class SearchTree {
     using const_pointer   = typename Nodes::const_pointer;
     using const_iterator  = typename Nodes::const_iterator;
 
+    SearchTree ( ) : root_node{ 1 }, m_nodes{ Node{} } {}
+
     template<typename... Args>
     SearchTree ( Args &&... args_ ) : root_node{ 1 }, m_nodes{ Node{ }, Node{ std::forward<Args> ( args_ )... } } {}
+
+    void reserve ( size_type c_ ) { m_nodes.reserve ( static_cast<typename Nodes::size_type> ( c_ ) ); }
 
     template<typename... Args>
     [[maybe_unused]] NodeID addNode ( NodeID const source_, Args &&... args_ ) noexcept {
@@ -173,11 +178,11 @@ class SearchTree {
 
     [[nodiscard]] const_iterator begin ( ) const noexcept { return m_nodes.begin ( ); }
     [[nodiscard]] const_iterator cbegin ( ) const noexcept { return begin ( ); }
-    [[nodiscard]] iterator begin ( ) noexcept { return const_cast<iterator> ( std::as_const ( *this ).begin ( ) ); }
+    [[nodiscard]] iterator begin ( ) noexcept { return const_cast<iterator> ( std::as_const ( this )->begin ( ) ); }
 
     [[nodiscard]] const_iterator end ( ) const noexcept { return m_nodes.end ( ); }
     [[nodiscard]] const_iterator cend ( ) const noexcept { return end ( ); }
-    [[nodiscard]] iterator end ( ) noexcept { return const_cast<iterator> ( std::as_const ( *this ).end ( ) ); }
+    [[nodiscard]] iterator end ( ) noexcept { return const_cast<iterator> ( std::as_const ( this )->end ( ) ); }
 
     class out_iterator {
 
