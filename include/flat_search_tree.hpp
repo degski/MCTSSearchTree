@@ -208,10 +208,6 @@ struct Node { // 24
         return out_;
     }
 
-    protected:
-    template<typename ArcData, typename NodeData>
-    friend class fst::SearchTree;
-
     DataType data;
 
     private:

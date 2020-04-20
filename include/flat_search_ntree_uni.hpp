@@ -116,10 +116,6 @@ struct Node { // 16
         return out_;
     }
 
-    protected:
-    template<typename NodeData>
-    friend class ::fsntu::SearchTree;
-
     DataType data;
 
     private:
@@ -254,6 +250,37 @@ class SearchTree {
     [[nodiscard]] NodeData const & operator[] ( NodeID const node_ ) const noexcept { return m_nodes[ node_.value ].data; }
 
     [[nodiscard]] size_type size ( ) const noexcept { return static_cast<size_type> ( m_nodes.size ( ) ) - 1; }
+
+    void re_root ( NodeID const root_ ) {
+        assert ( NodeID::invalid ( ) != root_ );
+        SearchTree sub_tree{ std::move ( m_nodes[ root_.value ].data ) };
+        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
+        // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
+        std::vector<NodeID> visited ( m_nodes.size ( ), NodeID::invalid ( ) );
+        visited[ root_.value ] = sub_tree.root_node;
+        std::vector<NodeID> stack;
+        stack.reserve ( 64u );
+        stack.push_back ( root_ );
+        while ( stack.size ( ) ) {
+            NodeID parent = stack.back ( );
+            std::cout << "parent " << parent.value << nl;
+            stack.pop_back ( );
+            for ( NodeID child = m_nodes[ parent.value ].tail; NodeID::invalid ( ) != child; child = m_nodes[ child.value ].prev )
+                if ( NodeID::invalid ( ) == visited[ child.value ] ) { // Not visited yet.
+                    visited[ child.value ] =
+                        sub_tree.add_node ( visited[ parent.value ], std::move ( m_nodes[ child.value ].data ) );
+                    stack.push_back ( child );
+                }
+        }
+        std::swap ( m_nodes, sub_tree.m_nodes );
+    }
+
+    void flatten ( ) {
+        SearchTree sub_tree{ std::move ( m_nodes[ root_node.value ].data ) };
+        for ( NodeID child = m_nodes[ root_node.value ].tail; NodeID::invalid ( ) != child; child = m_nodes[ child.value ].prev )
+            sub_tree.add_node ( root_node, std::move ( m_nodes[ child.value ].data ) );
+        std::swap ( m_nodes, sub_tree.m_nodes );
+    }
 
     // Data members.
 

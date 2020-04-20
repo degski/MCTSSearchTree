@@ -120,10 +120,6 @@ struct Node { // 24
         return out_;
     }
 
-    protected:
-    template<typename NodeData>
-    friend class ::fsnt::SearchTree;
-
     DataType data;
 
     private:

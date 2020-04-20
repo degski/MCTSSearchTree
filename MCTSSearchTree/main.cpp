@@ -102,8 +102,20 @@ int main ( ) {
 
     std::cout << t.size ( ) << nl;
 
+    for ( It it{ t, t.root_node }; it.is_valid ( ); ++it )
+        std::cout << it->data << ' ';
+
+    std::cout << nl;
+
     for ( It it{ t, n2 }; it.is_valid ( ); ++it )
-        std::cout << it.id ( ) << ' ';
+        std::cout << it->data << ' ';
+
+    std::cout << nl;
+
+    t.re_root ( n2 );
+
+    for ( It it{ t, t.root_node }; it.is_valid ( ); ++it )
+        std::cout << it->data << ' ';
 
     std::cout << nl;
 
