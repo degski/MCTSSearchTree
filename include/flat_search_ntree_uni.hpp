@@ -251,22 +251,20 @@ class SearchTree {
 
     [[nodiscard]] size_type size ( ) const noexcept { return static_cast<size_type> ( m_nodes.size ( ) ) - 1; }
 
-    void re_root ( NodeID const root_ ) {
+    // Make root_ the new root of the tree and discard the rest of the tree.
+    void root ( NodeID const root_ ) {
         assert ( NodeID::invalid ( ) != root_ );
         SearchTree sub_tree{ std::move ( m_nodes[ root_.value ].data ) };
-        // The Visited-vector stores the new NodeID's indexed by old NodeID's,
-        // old NodeID's not present in the new tree have a value of NodeID::invalid ( ).
-        std::vector<NodeID> visited ( m_nodes.size ( ), NodeID::invalid ( ) );
+        std::vector<NodeID> visited ( m_nodes.size ( ) );
         visited[ root_.value ] = sub_tree.root_node;
         std::vector<NodeID> stack;
         stack.reserve ( 64u );
         stack.push_back ( root_ );
         while ( stack.size ( ) ) {
             NodeID parent = stack.back ( );
-            std::cout << "parent " << parent.value << nl;
             stack.pop_back ( );
             for ( NodeID child = m_nodes[ parent.value ].tail; NodeID::invalid ( ) != child; child = m_nodes[ child.value ].prev )
-                if ( NodeID::invalid ( ) == visited[ child.value ] ) { // Not visited yet.
+                if ( NodeID::invalid ( ) == visited[ child.value ] ) {
                     visited[ child.value ] =
                         sub_tree.add_node ( visited[ parent.value ], std::move ( m_nodes[ child.value ].data ) );
                     stack.push_back ( child );

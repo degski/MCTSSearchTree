@@ -112,7 +112,7 @@ int main ( ) {
 
     std::cout << nl;
 
-    t.re_root ( n2 );
+    t.root ( n2 );
 
     for ( It it{ t, t.root_node }; it.is_valid ( ); ++it )
         std::cout << it->data << ' ';
